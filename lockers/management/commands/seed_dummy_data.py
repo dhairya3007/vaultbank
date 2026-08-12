@@ -45,6 +45,14 @@ class Command(BaseCommand):
 
         w('=== Seeding VaultBank Dummy Data ===\n')
 
+        # 0. Superuser
+        from django.contrib.auth.models import User
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@vaultbank.com', 'admin123')
+            w(self.style.SUCCESS('  CREATED Superuser: admin (password: admin123)\n'))
+        else:
+            w('  SKIP    Superuser admin already exists\n')
+
         # 1. Lockers
         w('[LOCKERS]')
         lockers = []
