@@ -1,0 +1,175 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Process Entry — Locker #{{ locker.locker_number }}{% endblock %}
+{% block page_title %}Process Entry{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- DaisyUI Steps Progress Component -->
+  <div class="card bg-base-200 border border-base-300 p-4 shadow-md">
+    <ul class="steps steps-vertical sm:steps-horizontal w-full">
+      <li class="step step-primary" data-content="✓">Token Verified</li>
+      <li class="step step-primary" data-content="2">Select Customer &amp; Process Entry</li>
+    </ul>
+  </div>
+
+  <!-- Locker Info Header Bar -->
+  <div class="card bg-base-200 border border-base-300 shadow-md">
+    <div class="card-body p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary text-2xl">
+          🔐
+        </div>
+        <div>
+          <h2 class="text-xl font-black tracking-tight">Locker #{{ locker.locker_number }}</h2>
+          <code class="text-xs text-primary font-mono bg-base-300 px-2 py-0.5 rounded border border-base-300">{{ locker.token }}</code>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="badge badge-success font-semibold">Active</span>
+        <span class="text-sm font-semibold text-base-content/70">{{ customers|length }} customer{{ customers|length|pluralize }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Session Warning Callout -->
+  {% if active_log %}
+  <div class="alert alert-warning shadow-lg flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <span class="text-xl">🟢</span>
+      <div>
+        <div class="font-bold">{{ active_log.customer.name }} is currently inside this locker.</div>
+        <div class="text-xs opacity-80">Check-in time: {{ active_log.check_in_time|date:"d M, H:i" }}</div>
+      </div>
+    </div>
+    <form method="POST" action="{% url 'check_out' active_log.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-error btn-sm">⬆️ Check Out</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Customer Selection Form -->
+  {% if customers %}
+  <form method="POST" id="checkinForm" class="space-y-6">
+    {% csrf_token %}
+
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-bold tracking-tight">Authorised Customers — Select to Process Entry</h3>
+      <label class="label cursor-pointer gap-2 bg-base-200 px-3 py-1.5 rounded-lg border border-base-300">
+        <input type="checkbox" id="selectAll" onchange="toggleAll(this)" class="checkbox checkbox-primary checkbox-sm" />
+        <span class="label-text font-semibold text-xs">Select All</span>
+      </label>
+    </div>
+
+    <!-- Tailwind Grid of Customer Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for customer in customers %}
+      <label class="card bg-base-200 border-2 border-base-300 hover:border-primary/50 cursor-pointer transition-all duration-200 shadow-lg relative p-5 flex flex-row items-start gap-4 cc-card" for="cust_{{ customer.pk }}">
+        
+        <!-- Checkbox -->
+        <div class="pt-1">
+          <input
+            type="checkbox"
+            name="customer_ids"
+            value="{{ customer.pk }}"
+            id="cust_{{ customer.pk }}"
+            class="checkbox checkbox-primary cc-checkbox"
+            {% if customer.is_active_now %}disabled title="Already checked in"{% endif %}
+          />
+        </div>
+
+        <!-- Avatar -->
+        <div class="avatar placeholder">
+          <div class="bg-primary/20 text-primary border border-primary/30 rounded-full w-12 h-12 font-extrabold text-base">
+            <span>{{ customer.name|first|upper }}</span>
+          </div>
+        </div>
+
+        <!-- Customer Details -->
+        <div class="flex-1 min-w-0 space-y-2">
+          <div class="font-extrabold text-base tracking-tight truncate">{{ customer.name }}</div>
+          <div>
+            <span class="badge badge-info badge-outline text-xs font-semibold">{{ customer.get_id_proof_type_display }}</span>
+          </div>
+
+          {% if customer.is_active_now %}
+          <div class="badge badge-success text-[11px] font-bold gap-1">🟢 Currently Inside</div>
+          {% endif %}
+
+          <!-- ID Proof Preview / Link -->
+          <div class="pt-1">
+            {% if customer.id_proof_file %}
+              {% if customer.proof_is_image %}
+              <a href="{{ customer.id_proof_file.url }}" target="_blank" class="block relative rounded-lg overflow-hidden border border-base-300 max-w-[180px] h-20 group">
+                <img src="{{ customer.id_proof_file.url }}" alt="ID Proof" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity">
+                  🔍 View Full
+                </div>
+              </a>
+              {% else %}
+              <a href="{{ customer.id_proof_file.url }}" target="_blank" class="btn btn-neutral btn-xs gap-2 border-base-300">
+                📄 View Document (.{{ customer.proof_ext }})
+              </a>
+              {% endif %}
+            {% else %}
+              <span class="text-xs text-base-content/40 italic">No document uploaded</span>
+            {% endif %}
+          </div>
+
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-3 pt-2">
+      <button type="submit" class="btn btn-primary btn-lg gap-2 shadow-lg shadow-primary/20" onclick="return validateSelection()">
+        ✅ Process Entry
+      </button>
+      <a href="{% url 'scan_token' %}" class="btn btn-neutral btn-lg">← Scan Another</a>
+      <a href="{% url 'locker_detail' locker.pk %}" class="btn btn-neutral btn-lg">Manage Locker</a>
+    </div>
+
+  </form>
+
+  {% else %}
+  <div class="card bg-base-200 border border-base-300 p-12 text-center">
+    <div class="text-5xl mb-4">👤</div>
+    <h3 class="text-xl font-bold">No Customers Assigned</h3>
+    <p class="text-sm text-base-content/70 mt-1 mb-4">This locker has no registered customers. Please assign customers before processing entry.</p>
+    <div>
+      <a href="{% url 'locker_detail' locker.pk %}" class="btn btn-primary">Manage Locker</a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+function toggleAll(master) {
+  document.querySelectorAll('.cc-checkbox:not(:disabled)').forEach(cb => {
+    cb.checked = master.checked;
+    cb.closest('.cc-card').classList.toggle('border-primary', master.checked);
+  });
+}
+
+document.querySelectorAll('.cc-checkbox').forEach(cb => {
+  cb.addEventListener('change', () => {
+    cb.closest('.cc-card').classList.toggle('border-primary', cb.checked);
+    const enabled = document.querySelectorAll('.cc-checkbox:not(:disabled)');
+    const allChecked = [...enabled].every(c => c.checked);
+    document.getElementById('selectAll').checked = allChecked;
+  });
+});
+
+function validateSelection() {
+  const selected = document.querySelectorAll('.cc-checkbox:checked').length;
+  if (selected === 0) {
+    alert('Please select at least one customer before processing entry.');
+    return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}

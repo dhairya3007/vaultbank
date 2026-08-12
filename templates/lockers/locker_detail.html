@@ -1,0 +1,230 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Locker #{{ locker.locker_number }}{% endblock %}
+{% block page_title %}Locker #{{ locker.locker_number }}{% endblock %}
+
+{% block content %}
+<div class="detail-layout">
+
+  <!-- Left Column: Locker Info & Check-In -->
+  <div class="detail-main">
+
+    <!-- Locker Info Card -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Locker Info</h2>
+        <div class="btn-group">
+          <a href="{% url 'locker_edit' locker.pk %}" class="btn btn-ghost btn-sm">✏️ Edit</a>
+          <a href="{% url 'locker_delete' locker.pk %}" class="btn btn-danger btn-sm">🗑 Delete</a>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Locker Number</span>
+          <span class="info-value">#{{ locker.locker_number }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Status</span>
+          <span class="info-value">
+            {% if locker.is_active %}
+            <span class="badge badge-green">Active</span>
+            {% else %}
+            <span class="badge badge-red">Inactive</span>
+            {% endif %}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Customers</span>
+          <span class="info-value">{{ locker.customer_count }}/3</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">🔑 Token</span>
+          <span class="info-value token-display">{{ locker.token }}</span>
+        </div>
+      </div>
+
+      <!-- QR Code Section -->
+      <div class="qr-section">
+        <div class="qr-code-wrap">
+          <img
+            src="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=160x160&bgcolor=0a0e1a&color=00d4ff&margin=10"
+            alt="QR Code for Locker #{{ locker.locker_number }}"
+            class="qr-code-img"
+            title="Scan this QR code at the scan station"
+          />
+          <div class="qr-label">
+            <span class="qr-locker-num">#{{ locker.locker_number }}</span>
+            <span class="qr-hint">Scan to check-in</span>
+          </div>
+        </div>
+        <div class="qr-actions">
+          <a
+            href="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=400x400&bgcolor=ffffff&color=000000&margin=20"
+            target="_blank"
+            class="btn btn-ghost btn-sm"
+            download="locker-{{ locker.locker_number }}-qr.png"
+          >
+            ⬇️ Download QR
+          </a>
+          <button onclick="copyToken('{{ locker.token }}')" class="btn btn-ghost btn-sm">
+            📋 Copy Token
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Check-In Panel ───────────────────────────────────────── -->
+    <div class="section-card checkin-panel">
+      <h2 class="section-title">
+        {% if active_log %}🔓 Currently In Use{% else %}🔐 Process Entry{% endif %}
+      </h2>
+
+      {% if active_log %}
+      <!-- Active Session -->
+      <div class="active-session">
+        <div class="session-info">
+          <div class="session-avatar">{{ active_log.customer.name|first|upper }}</div>
+          <div class="session-details">
+            <strong>{{ active_log.customer.name }}</strong>
+            <span>Checked in at {{ active_log.check_in_time|date:"d M Y, H:i" }}</span>
+            <span class="duration-badge">{{ active_log.duration }}</span>
+          </div>
+        </div>
+        <form method="POST" action="{% url 'check_out' active_log.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-orange btn-lg w-full">
+            🔒 Process Check-Out
+          </button>
+        </form>
+      </div>
+
+      {% elif customers %}
+      <!-- Customer Selection for Check-In -->
+      <form method="POST" action="{% url 'check_in' %}" id="checkinForm">
+        {% csrf_token %}
+        <input type="hidden" name="locker_id" value="{{ locker.pk }}" />
+        <div class="form-group">
+          <label class="form-label">Select Customer</label>
+          <p class="form-hint">Choose which authorized customer is accessing the locker:</p>
+          <div class="customer-radio-list">
+            {% for customer in customers %}
+            <label class="customer-radio-item" for="customer_{{ customer.pk }}">
+              <input type="radio" name="customer_id" id="customer_{{ customer.pk }}" value="{{ customer.pk }}" required />
+              <div class="radio-customer-card">
+                <div class="radio-avatar">{{ customer.name|first|upper }}</div>
+                <div class="radio-info">
+                  <span class="radio-name">{{ customer.name }}</span>
+                  <span class="radio-proof">{{ customer.get_id_proof_type_display }}</span>
+                </div>
+                <div class="radio-check">✓</div>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-full" id="processEntryBtn">
+          ✅ Process Entry
+        </button>
+      </form>
+
+      {% else %}
+      <!-- No Customers Assigned -->
+      <div class="empty-state">
+        <span class="empty-icon">⚠️</span>
+        <p>No customers assigned to this locker. Check-in is blocked.</p>
+        <p class="text-muted">Add at least one customer below to enable check-in.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Right Column: Customers & Logs -->
+  <div class="detail-side">
+
+    <!-- ── Assigned Customers ──────────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">👥 Customers ({{ customers|length }}/3)</h2>
+      </div>
+
+      {% if customers %}
+      <ul class="customer-list">
+        {% for customer in customers %}
+        <li class="customer-list-item">
+          <div class="cl-avatar">{{ customer.name|first|upper }}</div>
+          <div class="cl-info">
+            <a href="{% url 'customer_detail' customer.pk %}" class="cl-name">{{ customer.name }}</a>
+            <span class="cl-proof">{{ customer.get_id_proof_type_display }}</span>
+          </div>
+          <form method="POST" action="{% url 'remove_locker_user' locker.pk customer.pk %}" class="cl-remove">
+            {% csrf_token %}
+            <button type="submit" class="btn-icon-danger" title="Remove" onclick="return confirm('Remove {{ customer.name }} from this locker?')">✕</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted text-sm">No customers yet.</p>
+      {% endif %}
+
+      <!-- Add Customer Form -->
+      {% if can_add %}
+      <div class="add-customer-form">
+        <h3 class="sub-title">Add Customer</h3>
+        <form method="POST" action="{% url 'add_locker_user' locker.pk %}">
+          {% csrf_token %}
+          <div class="form-row">
+            {{ add_form.customer }}
+            <button type="submit" class="btn btn-primary btn-sm">Add</button>
+          </div>
+        </form>
+      </div>
+      {% else %}
+      <div class="capacity-full-notice">
+        🔒 Maximum 3 customers reached
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ── Access History ──────────────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">📋 Access History</h2>
+        <a href="{% url 'access_log' %}?q={{ locker.locker_number }}" class="btn btn-ghost btn-sm">All →</a>
+      </div>
+      {% if logs %}
+      <ul class="log-list">
+        {% for log in logs %}
+        <li class="log-item">
+          <div class="log-dot {% if log.is_active %}dot-green{% else %}dot-gray{% endif %}"></div>
+          <div class="log-body">
+            <span class="log-name">{{ log.customer.name }}</span>
+            <span class="log-time">{{ log.check_in_time|date:"d M, H:i" }}</span>
+            {% if log.check_out_time %}
+            <span class="log-duration">{{ log.duration }}</span>
+            {% else %}
+            <span class="badge badge-green badge-xs">Active</span>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted text-sm">No access history yet.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+function copyToken(token) {
+  navigator.clipboard.writeText(token).then(() => {
+    const btn = event.target.closest('button');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Token', 2000);
+  });
+}
+</script>
+{% endblock %}

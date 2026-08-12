@@ -1,0 +1,26 @@
+# Task List – Secure Locker Access System
+
+- [x] Create implementation plan
+- [/] Set up virtual environment (bank) and install Django
+- [ ] Create Django project (locker_system) and app (lockers)
+- [ ] Write models.py (Locker, Customer, LockerUser, AccessLog)
+- [ ] Write admin.py
+- [ ] Write forms.py
+- [ ] Write views.py
+- [ ] Write urls.py (app + project)
+- [ ] Write settings.py adjustments
+- [ ] Create base.html template
+- [ ] Create dashboard.html
+- [ ] Create locker_list.html
+- [ ] Create locker_detail.html
+- [ ] Create customer_list.html
+- [ ] Create customer_detail.html
+- [ ] Create scan_token.html
+- [ ] Create access_log.html
+- [ ] Create add_customer_form.html
+- [ ] Write style.css (glassmorphism dark theme)
+- [ ] Write responsive.css (media queries only)
+- [ ] Write main.js
+- [ ] Run migrations
+- [ ] Create superuser
+- [ ] Write README.md

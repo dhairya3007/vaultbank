@@ -1,0 +1,76 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Access Logs{% endblock %}
+{% block page_title %}Access Logs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-heading">Access Logs</h1>
+    <p class="page-sub">Full history of locker check-ins and check-outs</p>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <form method="GET" class="filter-form">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔎</span>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by customer or locker..." class="search-input" />
+    </div>
+    <div class="filter-tabs">
+      <a href="?{% if query %}q={{ query }}&{% endif %}status=" class="filter-tab {% if not status %}active{% endif %}">All</a>
+      <a href="?{% if query %}q={{ query }}&{% endif %}status=active" class="filter-tab {% if status == 'active' %}active{% endif %}">Active</a>
+      <a href="?{% if query %}q={{ query }}&{% endif %}status=closed" class="filter-tab {% if status == 'closed' %}active{% endif %}">Closed</a>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+  </form>
+</div>
+
+{% if logs %}
+<div class="table-wrapper section-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Customer</th>
+        <th>Locker</th>
+        <th>Check-In</th>
+        <th>Check-Out</th>
+        <th>Duration</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td class="text-muted">{{ forloop.counter }}</td>
+        <td>
+          <div class="table-name-cell">
+            <div class="table-avatar">{{ log.customer.name|first|upper }}</div>
+            <a href="{% url 'customer_detail' log.customer.pk %}" class="table-link">{{ log.customer.name }}</a>
+          </div>
+        </td>
+        <td><a href="{% url 'locker_detail' log.locker.pk %}" class="table-link">#{{ log.locker.locker_number }}</a></td>
+        <td class="text-muted">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
+        <td class="text-muted">{{ log.check_out_time|date:"d M Y, H:i"|default:"—" }}</td>
+        <td>{{ log.duration }}</td>
+        <td>
+          {% if log.is_active %}
+          <span class="badge badge-green">Active</span>
+          {% else %}
+          <span class="badge badge-gray">Closed</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state large">
+  <span class="empty-icon">📋</span>
+  <h3>No logs found</h3>
+  <p>{% if query %}No results for "{{ query }}".{% else %}No access records yet.{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

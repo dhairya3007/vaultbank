@@ -1,0 +1,65 @@
+{% extends 'lockers/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <h2 class="form-card-title">{{ title }}</h2>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="form-group">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="field-error">{{ field.errors.as_text }}</div>
+        {% endif %}
+        {% if field.help_text %}
+        <div class="field-help">{{ field.help_text }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <!-- Token display (read-only after creation) -->
+      {% if locker %}
+      <div class="form-group">
+        <label class="form-label">🔑 Auto-Generated Token</label>
+        <div class="token-readonly-box">
+          <span id="tokenVal">{{ locker.token }}</span>
+          <button type="button" class="btn btn-ghost btn-xs" onclick="copyToken()">📋 Copy</button>
+        </div>
+        <p class="field-help">This token is auto-generated and unique. It is used for QR scan check-in. Cannot be changed.</p>
+      </div>
+      {% else %}
+      <div class="form-group">
+        <div class="token-info-box">
+          <span class="token-info-icon">🔑</span>
+          <div>
+            <strong>Token Auto-Generated</strong>
+            <p>A unique secure token will be automatically generated when you save this locker. It will be displayed on the locker detail page as a QR code.</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-lg">💾 Save</button>
+        <a href="javascript:history.back()" class="btn btn-ghost btn-lg">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function copyToken() {
+  const val = document.getElementById('tokenVal').textContent;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy', 2000);
+  });
+}
+</script>
+{% endblock %}

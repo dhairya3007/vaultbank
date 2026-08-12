@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | VaultBank Locker System</title>
+  <meta name="description" content="Manager login for VaultBank Secure Locker Access System" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
+</head>
+<body class="login-body">
+  <div class="login-page">
+    <div class="login-left">
+      <div class="login-brand">
+        <div class="brand-icon">🏦</div>
+        <h1 class="brand-title">VaultBank</h1>
+        <p class="brand-sub">Secure Locker Management System</p>
+      </div>
+      <div class="login-features">
+        <div class="lf-item"><span>🔐</span> Multi-customer locker support</div>
+        <div class="lf-item"><span>📊</span> Real-time access monitoring</div>
+        <div class="lf-item"><span>🔍</span> Token-based scan check-in</div>
+        <div class="lf-item"><span>📋</span> Full audit trail</div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-card">
+        <h2 class="login-title">Manager Login</h2>
+        <p class="login-subtitle">Sign in to access the locker management panel</p>
+        <form method="POST" class="login-form">
+          {% csrf_token %}
+          {% if form.errors %}
+          <div class="scan-error">⚠️ Invalid username or password.</div>
+          {% endif %}
+          <div class="form-group">
+            <label class="form-label" for="id_username">Username</label>
+            {{ form.username }}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="id_password">Password</label>
+            {{ form.password }}
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-full">Sign In →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

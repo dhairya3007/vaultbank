@@ -1,0 +1,101 @@
+{% extends 'lockers/base.html' %}
+{% block title %}{{ customer.name }}{% endblock %}
+{% block page_title %}{{ customer.name }}{% endblock %}
+
+{% block content %}
+<div class="detail-layout">
+  <div class="detail-main">
+
+    <!-- Customer Info -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Customer Profile</h2>
+        <div class="btn-group">
+          <a href="{% url 'customer_edit' customer.pk %}" class="btn btn-ghost btn-sm">✏️ Edit</a>
+          <a href="{% url 'customer_delete' customer.pk %}" class="btn btn-danger btn-sm">🗑 Delete</a>
+        </div>
+      </div>
+      <div class="profile-hero">
+        <div class="profile-avatar-lg">{{ customer.name|first|upper }}</div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ customer.name }}</h1>
+          <span class="badge badge-blue">{{ customer.get_id_proof_type_display }}</span>
+        </div>
+      </div>
+      <div class="info-grid mt-4">
+        <div class="info-item">
+          <span class="info-label">ID Proof Type</span>
+          <span class="info-value">{{ customer.get_id_proof_type_display }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">ID Document</span>
+          <span class="info-value">
+            {% if customer.id_proof_file %}
+            <a href="{{ customer.id_proof_file.url }}" target="_blank" class="table-link">📄 View Document</a>
+            {% else %}
+            <span class="text-muted">Not uploaded</span>
+            {% endif %}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Lockers Assigned</span>
+          <span class="info-value">{{ lockers|length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Access History -->
+    <div class="section-card">
+      <h2 class="section-title">📋 Access History</h2>
+      {% if logs %}
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr><th>Locker</th><th>Check-In</th><th>Check-Out</th><th>Duration</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+            <tr>
+              <td><a href="{% url 'locker_detail' log.locker.pk %}" class="table-link">#{{ log.locker.locker_number }}</a></td>
+              <td class="text-muted">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
+              <td class="text-muted">{{ log.check_out_time|date:"d M Y, H:i"|default:"—" }}</td>
+              <td>{{ log.duration }}</td>
+              <td>{% if log.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-gray">Closed</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state"><span class="empty-icon">📋</span><p>No access history for this customer.</p></div>
+      {% endif %}
+    </div>
+
+  </div>
+  <div class="detail-side">
+
+    <!-- Assigned Lockers -->
+    <div class="section-card">
+      <h2 class="section-title">🔐 Assigned Lockers</h2>
+      {% if lockers %}
+      <ul class="locker-list-side">
+        {% for locker in lockers %}
+        <li>
+          <a href="{% url 'locker_detail' locker.pk %}" class="locker-side-item">
+            <span class="ls-icon">🔐</span>
+            <div class="ls-info">
+              <span class="ls-number">#{{ locker.locker_number }}</span>
+              {% if locker.is_active %}<span class="badge badge-green badge-xs">Active</span>{% else %}<span class="badge badge-red badge-xs">Inactive</span>{% endif %}
+            </div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty-state"><span class="empty-icon">🔐</span><p>No lockers assigned.</p></div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
