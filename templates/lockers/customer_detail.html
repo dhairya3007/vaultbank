@@ -1,101 +1,150 @@
 {% extends 'lockers/base.html' %}
 {% block title %}{{ customer.name }}{% endblock %}
-{% block page_title %}{{ customer.name }}{% endblock %}
+{% block page_title %}Customer Profile — {{ customer.name }}{% endblock %}
 
 {% block content %}
-<div class="detail-layout">
-  <div class="detail-main">
+<div class="space-y-6">
 
-    <!-- Customer Info -->
-    <div class="section-card">
-      <div class="section-header">
-        <h2 class="section-title">Customer Profile</h2>
-        <div class="btn-group">
-          <a href="{% url 'customer_edit' customer.pk %}" class="btn btn-ghost btn-sm">✏️ Edit</a>
-          <a href="{% url 'customer_delete' customer.pk %}" class="btn btn-danger btn-sm">🗑 Delete</a>
-        </div>
+  <!-- Header Bar -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 rounded-full bg-[#3B82F6] text-white font-black text-2xl flex items-center justify-center shadow-lg">
+        {{ customer.name|first|upper }}
       </div>
-      <div class="profile-hero">
-        <div class="profile-avatar-lg">{{ customer.name|first|upper }}</div>
-        <div class="profile-info">
-          <h1 class="profile-name">{{ customer.name }}</h1>
-          <span class="badge badge-blue">{{ customer.get_id_proof_type_display }}</span>
-        </div>
-      </div>
-      <div class="info-grid mt-4">
-        <div class="info-item">
-          <span class="info-label">ID Proof Type</span>
-          <span class="info-value">{{ customer.get_id_proof_type_display }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">ID Document</span>
-          <span class="info-value">
-            {% if customer.id_proof_file %}
-            <a href="{{ customer.id_proof_file.url }}" target="_blank" class="table-link">📄 View Document</a>
-            {% else %}
-            <span class="text-muted">Not uploaded</span>
-            {% endif %}
+      <div>
+        <h2 class="text-2xl font-black text-[#F1F5F9] tracking-tight">{{ customer.name }}</h2>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-[#3B82F6]">
+            {{ customer.get_id_proof_type_display }}
           </span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Lockers Assigned</span>
-          <span class="info-value">{{ lockers|length }}</span>
+          <span class="text-xs text-[#94A3B8]">• {{ lockers|length }} Locker{{ lockers|length|pluralize }} Allocated</span>
         </div>
       </div>
     </div>
 
-    <!-- Access History -->
-    <div class="section-card">
-      <h2 class="section-title">📋 Access History</h2>
-      {% if logs %}
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr><th>Locker</th><th>Check-In</th><th>Check-Out</th><th>Duration</th><th>Status</th></tr>
-          </thead>
-          <tbody>
-            {% for log in logs %}
-            <tr>
-              <td><a href="{% url 'locker_detail' log.locker.pk %}" class="table-link">#{{ log.locker.locker_number }}</a></td>
-              <td class="text-muted">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
-              <td class="text-muted">{{ log.check_out_time|date:"d M Y, H:i"|default:"—" }}</td>
-              <td>{{ log.duration }}</td>
-              <td>{% if log.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-gray">Closed</span>{% endif %}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="empty-state"><span class="empty-icon">📋</span><p>No access history for this customer.</p></div>
-      {% endif %}
+    <div class="flex items-center gap-2">
+      <a href="{% url 'customer_edit' customer.pk %}" class="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#3B82F6] text-[#F1F5F9] text-xs font-bold border border-[#334155] transition-all flex items-center gap-1.5">
+        ✏️ Edit
+      </a>
+      <a href="{% url 'customer_delete' customer.pk %}" class="px-4 py-2 rounded-xl bg-[#EF4444]/15 hover:bg-[#EF4444] text-[#EF4444] hover:text-white text-xs font-bold border border-[#EF4444]/30 transition-all flex items-center gap-1.5">
+        🗑 Delete
+      </a>
     </div>
-
   </div>
-  <div class="detail-side">
 
-    <!-- Assigned Lockers -->
-    <div class="section-card">
-      <h2 class="section-title">🔐 Assigned Lockers</h2>
-      {% if lockers %}
-      <ul class="locker-list-side">
-        {% for locker in lockers %}
-        <li>
-          <a href="{% url 'locker_detail' locker.pk %}" class="locker-side-item">
-            <span class="ls-icon">🔐</span>
-            <div class="ls-info">
-              <span class="ls-number">#{{ locker.locker_number }}</span>
-              {% if locker.is_active %}<span class="badge badge-green badge-xs">Active</span>{% else %}<span class="badge badge-red badge-xs">Inactive</span>{% endif %}
+  <!-- Grid Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left 2 Columns: Details & History -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Customer Profile Details Card -->
+      <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl space-y-4">
+        <h3 class="text-lg font-bold text-[#F1F5F9] border-b border-[#334155] pb-3">Identity Verification</h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-[#0F172A] p-4 rounded-xl border border-[#334155]">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8] block">ID Proof Document Type</span>
+            <span class="text-base font-bold text-[#F1F5F9] mt-1 block">{{ customer.get_id_proof_type_display }}</span>
+          </div>
+
+          <div class="bg-[#0F172A] p-4 rounded-xl border border-[#334155]">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8] block">Uploaded Document</span>
+            <div class="mt-1">
+              {% if customer.id_proof_file %}
+              <a href="{{ customer.id_proof_file.url }}" target="_blank" class="text-xs font-bold text-[#3B82F6] hover:underline inline-flex items-center gap-1">
+                📄 View / Download Document
+              </a>
+              {% else %}
+              <span class="text-xs text-[#94A3B8] italic">No document uploaded</span>
+              {% endif %}
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Access History Table -->
+      <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl space-y-4">
+        <h3 class="text-lg font-bold text-[#F1F5F9] border-b border-[#334155] pb-3">📋 Access Log History</h3>
+
+        {% if logs %}
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-[#F1F5F9]">
+            <thead>
+              <tr class="border-b border-[#334155] text-[11px] font-extrabold uppercase tracking-wider text-[#94A3B8]">
+                <th class="pb-3">Locker</th>
+                <th class="pb-3">Check-In</th>
+                <th class="pb-3">Check-Out</th>
+                <th class="pb-3">Duration</th>
+                <th class="pb-3">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#334155]">
+              {% for log in logs %}
+              <tr class="hover:bg-[#0F172A]/40 transition-colors">
+                <td class="py-3 font-mono font-bold text-[#3B82F6]">
+                  <a href="{% url 'locker_detail' log.locker.pk %}" class="hover:underline">
+                    #{{ log.locker.locker_number }}
+                  </a>
+                </td>
+                <td class="py-3 text-xs text-[#94A3B8]">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
+                <td class="py-3 text-xs text-[#94A3B8]">{{ log.check_out_time|date:"d M Y, H:i"|default:"—" }}</td>
+                <td class="py-3 text-xs font-medium">{{ log.duration }}</td>
+                <td class="py-3">
+                  {% if log.is_active %}
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E]">Active</span>
+                  {% else %}
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#94A3B8]/15 border border-[#94A3B8]/40 text-[#94A3B8]">Closed</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-xs text-[#94A3B8] italic text-center py-6">No access logs for this customer.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Right Side Column: Assigned Lockers -->
+    <div class="space-y-6">
+
+      <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl space-y-4">
+        <h3 class="text-base font-bold text-[#F1F5F9] border-b border-[#334155] pb-3">🔐 Allocated Lockers</h3>
+
+        {% if lockers %}
+        <div class="space-y-2">
+          {% for locker in lockers %}
+          <a href="{% url 'locker_detail' locker.pk %}" class="p-3.5 rounded-xl bg-[#0F172A] border border-[#334155] hover:border-[#3B82F6]/60 transition-all flex items-center justify-between group block">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">🔐</span>
+              <div>
+                <span class="font-extrabold text-[#F1F5F9] group-hover:text-[#3B82F6] transition-colors block">
+                  Locker #{{ locker.locker_number }}
+                </span>
+                <span class="text-[11px] text-[#94A3B8]">Token: {{ locker.token|truncatechars:10 }}</span>
+              </div>
+            </div>
+            
+            {% if locker.is_active %}
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E]">Active</span>
+            {% else %}
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444]">Inactive</span>
+            {% endif %}
           </a>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <div class="empty-state"><span class="empty-icon">🔐</span><p>No lockers assigned.</p></div>
-      {% endif %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-[#94A3B8] italic text-center py-4">No lockers allocated to this customer.</p>
+        {% endif %}
+      </div>
+
     </div>
 
   </div>
+
 </div>
 {% endblock %}

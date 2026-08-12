@@ -1752,3 +1752,47 @@ table thead th {
   align-items: center;
 }
 
+/* Dark Form Control Styles */
+.form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="file"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background-color: #0F172A !important;
+  color: #F1F5F9 !important;
+  border: 1px solid #334155 !important;
+  border-radius: 0.75rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+}
+
+select option {
+  background-color: #0F172A !important;
+  color: #F1F5F9 !important;
+}
+
+.form-check-input {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  accent-color: #3B82F6 !important;
+  background-color: #0F172A !important;
+  border: 1px solid #334155 !important;
+  border-radius: 0.25rem !important;
+  cursor: pointer;
+}
+

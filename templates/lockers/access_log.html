@@ -1,76 +1,117 @@
 {% extends 'lockers/base.html' %}
 {% block title %}Access Logs{% endblock %}
-{% block page_title %}Access Logs{% endblock %}
+{% block page_title %}Access Audit Logs{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="page-header-left">
-    <h1 class="page-heading">Access Logs</h1>
-    <p class="page-sub">Full history of locker check-ins and check-outs</p>
+<div class="space-y-6">
+
+  <!-- Header Row -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-2xl font-extrabold tracking-tight text-[#F1F5F9]">Access Audit Logs</h2>
+      <p class="text-sm text-[#94A3B8] mt-1">Complete security trail of locker check-ins and check-outs</p>
+    </div>
   </div>
-</div>
 
-<!-- Filters -->
-<div class="filter-bar">
-  <form method="GET" class="filter-form">
-    <div class="search-input-wrapper">
-      <span class="search-icon">🔎</span>
-      <input type="text" name="q" value="{{ query }}" placeholder="Search by customer or locker..." class="search-input" />
-    </div>
-    <div class="filter-tabs">
-      <a href="?{% if query %}q={{ query }}&{% endif %}status=" class="filter-tab {% if not status %}active{% endif %}">All</a>
-      <a href="?{% if query %}q={{ query }}&{% endif %}status=active" class="filter-tab {% if status == 'active' %}active{% endif %}">Active</a>
-      <a href="?{% if query %}q={{ query }}&{% endif %}status=closed" class="filter-tab {% if status == 'closed' %}active{% endif %}">Closed</a>
-    </div>
-    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-  </form>
-</div>
+  <!-- Search & Filter Bar -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-4 shadow-lg flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
+    <form method="GET" class="flex flex-col sm:flex-row gap-3 flex-1">
+      <div class="relative flex-1">
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          placeholder="Search by customer name or locker number..."
+          class="w-full px-4 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#3B82F6] text-sm"
+        />
+      </div>
+      
+      <!-- Status Filter Tabs -->
+      <div class="flex p-1 bg-[#0F172A] border border-[#334155] rounded-xl">
+        <a href="?{% if query %}q={{ query }}&{% endif %}status=" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {% if not status %}bg-[#3B82F6] text-white shadow{% else %}text-[#94A3B8] hover:text-[#F1F5F9]{% endif %}">
+          All
+        </a>
+        <a href="?{% if query %}q={{ query }}&{% endif %}status=active" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {% if status == 'active' %}bg-[#3B82F6] text-white shadow{% else %}text-[#94A3B8] hover:text-[#F1F5F9]{% endif %}">
+          Active
+        </a>
+        <a href="?{% if query %}q={{ query }}&{% endif %}status=closed" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {% if status == 'closed' %}bg-[#3B82F6] text-white shadow{% else %}text-[#94A3B8] hover:text-[#F1F5F9]{% endif %}">
+          Closed
+        </a>
+      </div>
 
-{% if logs %}
-<div class="table-wrapper section-card">
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Customer</th>
-        <th>Locker</th>
-        <th>Check-In</th>
-        <th>Check-Out</th>
-        <th>Duration</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for log in logs %}
-      <tr>
-        <td class="text-muted">{{ forloop.counter }}</td>
-        <td>
-          <div class="table-name-cell">
-            <div class="table-avatar">{{ log.customer.name|first|upper }}</div>
-            <a href="{% url 'customer_detail' log.customer.pk %}" class="table-link">{{ log.customer.name }}</a>
-          </div>
-        </td>
-        <td><a href="{% url 'locker_detail' log.locker.pk %}" class="table-link">#{{ log.locker.locker_number }}</a></td>
-        <td class="text-muted">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
-        <td class="text-muted">{{ log.check_out_time|date:"d M Y, H:i"|default:"—" }}</td>
-        <td>{{ log.duration }}</td>
-        <td>
-          {% if log.is_active %}
-          <span class="badge badge-green">Active</span>
-          {% else %}
-          <span class="badge badge-gray">Closed</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      <button type="submit" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
+        Filter
+      </button>
+    </form>
+  </div>
+
+  {% if logs %}
+  <!-- Table Container -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl overflow-x-auto">
+    <table class="w-full text-left text-sm text-[#F1F5F9]">
+      <thead>
+        <tr class="border-b border-[#334155] text-[11px] font-extrabold uppercase tracking-wider text-[#94A3B8]">
+          <th class="pb-3 px-3">#</th>
+          <th class="pb-3 px-3">Customer</th>
+          <th class="pb-3 px-3">Locker</th>
+          <th class="pb-3 px-3">Check-In Time</th>
+          <th class="pb-3 px-3">Check-Out Time</th>
+          <th class="pb-3 px-3">Duration</th>
+          <th class="pb-3 px-3">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-[#334155]">
+        {% for log in logs %}
+        <tr class="hover:bg-[#0F172A]/40 transition-colors">
+          <td class="py-4 px-3 text-xs text-[#94A3B8] font-mono">{{ forloop.counter }}</td>
+          <td class="py-4 px-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#3B82F6] text-white font-bold text-xs flex items-center justify-center shadow">
+                {{ log.customer.name|first|upper }}
+              </div>
+              <a href="{% url 'customer_detail' log.customer.pk %}" class="font-bold text-[#F1F5F9] hover:text-[#3B82F6] transition-colors">
+                {{ log.customer.name }}
+              </a>
+            </div>
+          </td>
+          <td class="py-4 px-3 font-mono font-bold text-[#3B82F6]">
+            <a href="{% url 'locker_detail' log.locker.pk %}" class="hover:underline">
+              #{{ log.locker.locker_number }}
+            </a>
+          </td>
+          <td class="py-4 px-3 text-xs text-[#94A3B8]">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
+          <td class="py-4 px-3 text-xs text-[#94A3B8]">
+            {% if log.check_out_time %}
+              {{ log.check_out_time|date:"d M Y, H:i" }}
+            {% else %}
+              <span class="text-[#94A3B8]/40">—</span>
+            {% endif %}
+          </td>
+          <td class="py-4 px-3 text-xs font-medium">{{ log.duration }}</td>
+          <td class="py-4 px-3">
+            {% if log.is_currently_active %}
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E] flex items-center gap-1.5 w-max">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse"></span> Active
+            </span>
+            {% else %}
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#94A3B8]/15 border border-[#94A3B8]/40 text-[#94A3B8] w-max block">
+              Closed
+            </span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-12 text-center shadow-xl">
+    <div class="text-5xl mb-4">📋</div>
+    <h3 class="text-xl font-bold text-[#F1F5F9]">No audit logs found</h3>
+    <p class="text-sm text-[#94A3B8] mt-1">{% if query %}No audit logs matching "{{ query }}".{% else %}No access records logged yet.{% endif %}</p>
+  </div>
+  {% endif %}
+
 </div>
-{% else %}
-<div class="empty-state large">
-  <span class="empty-icon">📋</span>
-  <h3>No logs found</h3>
-  <p>{% if query %}No results for "{{ query }}".{% else %}No access records yet.{% endif %}</p>
-</div>
-{% endif %}
 {% endblock %}

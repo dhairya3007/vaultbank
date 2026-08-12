@@ -113,8 +113,9 @@
       </div>
 
       <!-- Form -->
-      <form method="POST" class="space-y-4">
+      <form method="POST" action="{{ request.get_full_path }}" class="space-y-4">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}" />
 
         {% if form.errors %}
         <div class="p-3.5 rounded-xl bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-xs font-semibold flex items-center gap-2">

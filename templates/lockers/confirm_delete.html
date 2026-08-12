@@ -3,21 +3,35 @@
 {% block page_title %}Confirm Delete{% endblock %}
 
 {% block content %}
-<div class="form-page">
-  <div class="form-card danger-card">
-    <div class="danger-icon">⚠️</div>
-    <h2 class="form-card-title">Delete {{ type }}</h2>
-    <p class="danger-text">
-      Are you sure you want to permanently delete <strong>"{{ obj }}"</strong>?
-      This action cannot be undone.
-    </p>
-    <form method="POST">
+<div class="max-w-md mx-auto py-8">
+  <div class="bg-[#1E293B] border border-[#EF4444]/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+
+    <div class="w-16 h-16 rounded-full bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-3xl font-bold flex items-center justify-center mx-auto shadow-inner">
+      ⚠️
+    </div>
+
+    <div class="space-y-2">
+      <h2 class="text-2xl font-black text-[#F1F5F9] tracking-tight">Delete {{ type }}</h2>
+      <p class="text-sm text-[#94A3B8] leading-relaxed">
+        Are you sure you want to permanently delete <strong class="text-[#F1F5F9]">"{{ obj }}"</strong>?
+      </p>
+      <div class="p-3 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/20 text-[#EF4444] text-xs font-semibold">
+        This action cannot be undone.
+      </div>
+    </div>
+
+    <form method="POST" class="pt-2">
       {% csrf_token %}
-      <div class="form-actions">
-        <button type="submit" class="btn btn-danger btn-lg">🗑 Yes, Delete</button>
-        <a href="javascript:history.back()" class="btn btn-ghost btn-lg">Cancel</a>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button type="submit" class="flex-1 bg-[#EF4444] hover:bg-[#DC2626] text-white py-3 px-6 rounded-xl font-bold text-sm shadow-lg shadow-[#EF4444]/25 transition-all">
+          🗑 Yes, Delete
+        </button>
+        <a href="javascript:history.back()" class="px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#334155] text-[#F1F5F9] font-bold text-sm border border-[#334155] transition-all">
+          Cancel
+        </a>
       </div>
     </form>
+
   </div>
 </div>
 {% endblock %}
