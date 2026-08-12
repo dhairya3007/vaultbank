@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "locker_system/wsgi.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "locker_system/wsgi.py"
+      "dest": "api/index.py"
     }
   ]
 }

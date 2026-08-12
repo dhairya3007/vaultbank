@@ -54,10 +54,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'locker_system.wsgi.application'
 
+import shutil
+
+DB_FILE = BASE_DIR / 'db.sqlite3'
+
+if os.environ.get('VERCEL') or not os.access(BASE_DIR, os.W_OK):
+    TMP_DB = Path('/tmp') / 'db.sqlite3'
+    if not TMP_DB.exists() and DB_FILE.exists():
+        try:
+            shutil.copy(DB_FILE, TMP_DB)
+        except Exception:
+            pass
+    DB_TARGET = TMP_DB if TMP_DB.exists() else DB_FILE
+else:
+    DB_TARGET = DB_FILE
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_TARGET,
     }
 }
 
