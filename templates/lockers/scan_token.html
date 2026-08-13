@@ -1,0 +1,159 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Scan Token{% endblock %}
+{% block page_title %}Scan Access{% endblock %}
+
+{% block content %}
+<!-- html5-qrcode library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<div class="max-w-xl mx-auto py-4">
+  <div class="bg-[#1E293B] border border-[#334155] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+
+    <!-- Header Icon & Title -->
+    <div class="text-center space-y-2">
+      <div class="inline-flex p-4 rounded-2xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-[#3B82F6] text-3xl shadow-inner mb-1">
+        🔍
+      </div>
+      <h2 class="text-2xl font-black text-[#F1F5F9] tracking-tight">Scan Locker Access</h2>
+      <p class="text-sm text-[#94A3B8]">Scan QR code using camera or enter token code manually.</p>
+    </div>
+
+    {% if error %}
+    <div class="p-4 rounded-xl bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-xs font-semibold flex items-center gap-2">
+      <span>⚠️</span> {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Mode Tabs -->
+    <div class="grid grid-cols-2 gap-2 p-1.5 bg-[#0F172A] rounded-2xl border border-[#334155]">
+      <button class="py-2 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all" id="tabQR" onclick="switchTab('qr')">
+        📷 QR Scanner
+      </button>
+      <button class="py-2 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all" id="tabManual" onclick="switchTab('manual')">
+        ⌨️ Manual Entry
+      </button>
+    </div>
+
+    <!-- QR Scanner Panel -->
+    <div id="qrPanel" class="space-y-4 text-center">
+      <div class="relative w-full max-w-xs mx-auto rounded-2xl overflow-hidden bg-[#0F172A] min-h-[220px] border border-[#334155] flex items-center justify-center">
+        <div id="qr-reader" class="w-full"></div>
+      </div>
+      <p class="text-xs text-[#94A3B8] font-medium" id="cameraHint">Point camera at locker QR code</p>
+      <div class="flex justify-center gap-2">
+        <button class="px-5 py-2.5 rounded-xl bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold text-xs shadow-lg transition-all" id="startScanBtn" onclick="startScanner()">
+          📷 Start Camera
+        </button>
+        <button class="px-5 py-2.5 rounded-xl bg-[#EF4444] hover:bg-[#DC2626] text-white font-bold text-xs shadow-lg hidden" id="stopScanBtn" onclick="stopScanner()">
+          ⏹ Stop Camera
+        </button>
+      </div>
+    </div>
+
+    <!-- Manual Entry Panel -->
+    <div id="manualPanel" class="hidden">
+      <form method="POST" id="scanForm" class="space-y-4">
+        {% csrf_token %}
+        <div class="space-y-1.5">
+          <label class="block text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">
+            Token Code
+          </label>
+          {{ form.token }}
+        </div>
+        <button type="submit" class="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white py-3 px-4 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all">
+          → Process Token
+        </button>
+      </form>
+    </div>
+
+    <!-- How It Works Callout -->
+    <div class="p-4 rounded-2xl bg-[#0F172A] border border-[#334155] text-xs space-y-2 text-[#94A3B8]">
+      <div class="font-bold text-sm text-[#3B82F6]">How it works</div>
+      <ul class="list-disc list-inside space-y-1">
+        <li>Each locker has a unique auto-generated token &amp; QR code</li>
+        <li>Scan the QR code printed on the locker card</li>
+        <li>Or switch to Manual Entry and enter the token code</li>
+        <li>Select authorized customer to complete entry</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- Hidden redirect form (submitted after QR scan) -->
+<form method="POST" id="qrSubmitForm" class="hidden">
+  {% csrf_token %}
+  <input type="hidden" name="token" id="qrTokenInput" />
+</form>
+
+<script>
+function switchTab(tab) {
+  const isQR = tab === 'qr';
+  document.getElementById('qrPanel').classList.toggle('hidden', !isQR);
+  document.getElementById('manualPanel').classList.toggle('hidden', isQR);
+  
+  const tabQR = document.getElementById('tabQR');
+  const tabManual = document.getElementById('tabManual');
+  
+  if (isQR) {
+    tabQR.className = 'py-2 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-[#3B82F6] text-white shadow-md';
+    tabManual.className = 'py-2 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all text-[#94A3B8] hover:text-[#F1F5F9]';
+  } else {
+    tabManual.className = 'py-2 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-[#3B82F6] text-white shadow-md';
+    tabQR.className = 'py-2 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all text-[#94A3B8] hover:text-[#F1F5F9]';
+    stopScanner();
+  }
+}
+
+// Initial state
+switchTab('qr');
+
+let html5QrcodeScanner = null;
+
+function startScanner() {
+  const hintEl = document.getElementById('cameraHint');
+  const startBtn = document.getElementById('startScanBtn');
+  const stopBtn  = document.getElementById('stopScanBtn');
+
+  startBtn.classList.add('hidden');
+  stopBtn.classList.remove('hidden');
+  hintEl.textContent = 'Initializing camera...';
+
+  html5QrcodeScanner = new Html5Qrcode('qr-reader');
+  const config = { fps: 10, qrbox: { width: 200, height: 200 } };
+
+  html5QrcodeScanner.start(
+    { facingMode: 'environment' },
+    config,
+    onScanSuccess,
+    onScanError
+  ).then(() => {
+    hintEl.textContent = 'Camera active. Point at QR code.';
+  }).catch(err => {
+    hintEl.textContent = 'Camera error: ' + err;
+    startBtn.classList.remove('hidden');
+    stopBtn.classList.add('hidden');
+  });
+}
+
+function stopScanner() {
+  if (html5QrcodeScanner) {
+    html5QrcodeScanner.stop().then(() => {
+      html5QrcodeScanner.clear();
+      html5QrcodeScanner = null;
+      document.getElementById('startScanBtn').classList.remove('hidden');
+      document.getElementById('stopScanBtn').classList.add('hidden');
+      document.getElementById('cameraHint').textContent = 'Point camera at locker QR code';
+    }).catch(err => console.error(err));
+  }
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+  stopScanner();
+  document.getElementById('qrTokenInput').value = decodedText.trim();
+  document.getElementById('qrSubmitForm').submit();
+}
+
+function onScanError(error) {}
+</script>
+{% endblock %}

@@ -1,0 +1,317 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Locker #{{ locker.locker_number }}{% endblock %}
+{% block page_title %}Locker Details — #{{ locker.locker_number }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Top Navigation & Actions Bar -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6] text-2xl shadow-inner">
+        🔐
+      </div>
+      <div>
+        <div class="flex items-center gap-3">
+          <h2 class="text-2xl font-black text-[#F1F5F9] tracking-tight">Locker #{{ locker.locker_number }}</h2>
+          {% if locker.is_active %}
+          <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E] flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span> Active
+          </span>
+          {% else %}
+          <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span> Inactive
+          </span>
+          {% endif %}
+        </div>
+        <div class="text-xs text-[#94A3B8] font-mono mt-1 flex items-center gap-2">
+          <span>Token:</span>
+          <span class="text-[#3B82F6] font-bold bg-[#0F172A] px-2 py-0.5 rounded border border-[#334155] select-all">{{ locker.token }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="{% url 'locker_edit' locker.pk %}" class="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#3B82F6] text-[#F1F5F9] text-xs font-bold border border-[#334155] transition-all flex items-center gap-1.5">
+        ✏️ Edit
+      </a>
+      <a href="{% url 'locker_delete' locker.pk %}" class="px-4 py-2 rounded-xl bg-[#EF4444]/15 hover:bg-[#EF4444] text-[#EF4444] hover:text-white text-xs font-bold border border-[#EF4444]/30 transition-all flex items-center gap-1.5">
+        🗑 Delete
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Grid Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left 2 Columns: Info & Check-In Panel -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Locker Quick Stats & QR Card -->
+      <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl space-y-6">
+        <h3 class="text-lg font-bold text-[#F1F5F9] border-b border-[#334155] pb-3">Vault Specifications</h3>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div class="bg-[#0F172A] p-4 rounded-xl border border-[#334155]">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8] block">Capacity Status</span>
+            <span class="text-xl font-black text-[#F1F5F9] mt-1 block">👥 {{ locker.customer_count }} / 3</span>
+            <span class="text-[11px] text-[#94A3B8]">Assigned Users</span>
+          </div>
+
+          <div class="bg-[#0F172A] p-4 rounded-xl border border-[#334155]">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8] block">Occupancy</span>
+            {% if active_log %}
+            <span class="text-xl font-black text-[#F59E0B] mt-1 block">🔓 Occupied</span>
+            <span class="text-[11px] text-[#F59E0B]">Session in progress</span>
+            {% else %}
+            <span class="text-xl font-black text-[#22C55E] mt-1 block">🔐 Vacant</span>
+            <span class="text-[11px] text-[#22C55E]">Ready for entry</span>
+            {% endif %}
+          </div>
+
+          <div class="bg-[#0F172A] p-4 rounded-xl border border-[#334155] col-span-2 sm:col-span-1">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8] block">Security Protocol</span>
+            <span class="text-xl font-black text-[#22C55E] mt-1 block">AES 256</span>
+            <span class="text-[11px] text-[#94A3B8]">QR Encrypted Token</span>
+          </div>
+        </div>
+
+        <!-- QR Code Action Container -->
+        <div class="bg-[#0F172A] p-5 rounded-xl border border-[#334155] flex flex-col sm:flex-row items-center gap-6">
+          <div class="w-32 h-32 p-2 bg-white rounded-xl shadow-md flex items-center justify-center shrink-0">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=160x160&bgcolor=ffffff&color=000000&margin=5"
+              alt="QR Code"
+              class="w-full h-full object-contain"
+            />
+          </div>
+          <div class="space-y-3 text-center sm:text-left flex-1">
+            <div>
+              <h4 class="font-extrabold text-[#F1F5F9] text-base">QR Token Access Code</h4>
+              <p class="text-xs text-[#94A3B8] mt-0.5">Scan this QR code at the manager workstation or mobile scanner to auto-load check-in.</p>
+            </div>
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+              <a
+                href="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=400x400&bgcolor=ffffff&color=000000&margin=20"
+                target="_blank"
+                download="locker-{{ locker.locker_number }}-qr.png"
+                class="px-3 py-1.5 rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+              >
+                ⬇️ Download QR Code
+              </a>
+              <button
+                type="button"
+                onclick="copyToken('{{ locker.token }}')"
+                class="px-3 py-1.5 rounded-lg bg-[#1E293B] hover:bg-[#334155] text-[#F1F5F9] text-xs font-bold border border-[#334155] transition-all flex items-center gap-1.5"
+                id="copyTokenBtn"
+              >
+                📋 Copy Token
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Process Entry / Check-Out Panel -->
+      <div class="bg-[#1E293B] border border-[#3B82F6]/40 rounded-2xl p-6 shadow-xl space-y-5">
+        <div class="flex justify-between items-center border-b border-[#334155] pb-3">
+          <h3 class="text-lg font-bold text-[#F1F5F9] flex items-center gap-2">
+            {% if active_log %}
+            <span>🔓</span> Active Session Control
+            {% else %}
+            <span>🔐</span> Process Access Entry
+            {% endif %}
+          </h3>
+          {% if active_log %}
+          <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#F59E0B]/15 border border-[#F59E0B]/40 text-[#F59E0B] animate-pulse">
+            Active Now
+          </span>
+          {% endif %}
+        </div>
+
+        {% if active_log %}
+        <!-- Active Session Info Card -->
+        <div class="bg-[#0F172A] border border-[#F59E0B]/30 rounded-xl p-5 space-y-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-[#F59E0B] text-black font-black text-xl flex items-center justify-center shadow">
+              {{ active_log.customer.name|first|upper }}
+            </div>
+            <div>
+              <div class="text-base font-extrabold text-[#F1F5F9]">{{ active_log.customer.name }}</div>
+              <div class="text-xs text-[#94A3B8]">Checked in: <span class="text-[#F1F5F9] font-medium">{{ active_log.check_in_time|date:"d M Y, H:i" }}</span></div>
+              <div class="inline-block mt-1.5 px-2.5 py-0.5 rounded-md bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 text-[11px] font-bold">
+                Duration: {{ active_log.duration }}
+              </div>
+            </div>
+          </div>
+
+          <form method="POST" action="{% url 'check_out' active_log.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-[#F59E0B] hover:bg-[#D97706] text-black py-3 px-4 rounded-xl font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2">
+              🔒 Complete Check-Out
+            </button>
+          </form>
+        </div>
+
+        {% elif customers %}
+        <!-- Vacant Entry Form -->
+        <form method="POST" action="{% url 'check_in' %}" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="locker_id" value="{{ locker.pk }}" />
+          
+          <div>
+            <label class="block text-xs font-extrabold uppercase tracking-wider text-[#94A3B8] mb-2">
+              Select Authorized Customer
+            </label>
+            <div class="space-y-2">
+              {% for customer in customers %}
+              <label for="cust_{{ customer.pk }}" class="block cursor-pointer">
+                <input type="radio" name="customer_id" id="cust_{{ customer.pk }}" value="{{ customer.pk }}" class="peer hidden" required />
+                <div class="p-4 rounded-xl bg-[#0F172A] border border-[#334155] peer-checked:border-[#3B82F6] peer-checked:bg-[#3B82F6]/10 hover:border-[#3B82F6]/50 transition-all flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#3B82F6]/20 border border-[#3B82F6]/40 text-[#3B82F6] font-bold text-sm flex items-center justify-center">
+                      {{ customer.name|first|upper }}
+                    </div>
+                    <div>
+                      <div class="font-bold text-sm text-[#F1F5F9]">{{ customer.name }}</div>
+                      <div class="text-xs text-[#94A3B8]">{{ customer.get_id_proof_type_display }}</div>
+                    </div>
+                  </div>
+                  <div class="w-5 h-5 rounded-full border border-[#334155] peer-checked:border-[#3B82F6] peer-checked:bg-[#3B82F6] flex items-center justify-center text-xs text-white">
+                    ✓
+                  </div>
+                </div>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white py-3 px-4 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all flex items-center justify-center gap-2">
+            ✅ Process Entry
+          </button>
+        </form>
+
+        {% else %}
+        <div class="bg-[#0F172A] border border-[#EF4444]/30 rounded-xl p-6 text-center space-y-3">
+          <div class="text-3xl">⚠️</div>
+          <h4 class="text-base font-bold text-[#F1F5F9]">No Customers Assigned</h4>
+          <p class="text-xs text-[#94A3B8]">Entry is disabled because no authorized customers are linked to this locker. Please add a customer from the side panel.</p>
+        </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+
+    <!-- Right Side Column: Assigned Customers & Activity Logs -->
+    <div class="space-y-6">
+
+      <!-- Assigned Customers Panel -->
+      <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-[#334155] pb-3">
+          <h3 class="text-base font-bold text-[#F1F5F9]">👥 Customers ({{ customers|length }}/3)</h3>
+          <span class="text-xs font-bold text-[#3B82F6] bg-[#0F172A] px-2.5 py-1 rounded-lg border border-[#334155]">Max 3</span>
+        </div>
+
+        {% if customers %}
+        <div class="space-y-2">
+          {% for customer in customers %}
+          <div class="p-3 rounded-xl bg-[#0F172A] border border-[#334155] flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#3B82F6] text-white font-bold text-xs flex items-center justify-center shadow">
+                {{ customer.name|first|upper }}
+              </div>
+              <div>
+                <a href="{% url 'customer_detail' customer.pk %}" class="text-xs font-bold text-[#F1F5F9] hover:text-[#3B82F6] transition-colors block">
+                  {{ customer.name }}
+                </a>
+                <span class="text-[10px] text-[#94A3B8] block">{{ customer.get_id_proof_type_display }}</span>
+              </div>
+            </div>
+            
+            <form method="POST" action="{% url 'remove_locker_user' locker.pk customer.pk %}">
+              {% csrf_token %}
+              <button type="submit" onclick="return confirm('Remove {{ customer.name }} from Locker #{{ locker.locker_number }}?')" class="p-1.5 rounded-lg text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors" title="Remove Customer">
+                ✕
+              </button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-[#94A3B8] italic text-center py-4">No customers assigned to this locker yet.</p>
+        {% endif %}
+
+        <!-- Add Customer Form -->
+        {% if can_add %}
+        <div class="pt-4 border-t border-[#334155] space-y-3">
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">Assign New Customer</h4>
+          <form method="POST" action="{% url 'add_locker_user' locker.pk %}" class="flex gap-2">
+            {% csrf_token %}
+            <div class="flex-1">
+              <select name="customer" required class="w-full px-3 py-2 bg-[#0F172A] border border-[#334155] rounded-xl text-[#F1F5F9] text-xs focus:outline-none focus:border-[#3B82F6]">
+                <option value="">Select Customer...</option>
+                {% for choice in add_form.fields.customer.queryset %}
+                <option value="{{ choice.pk }}">{{ choice.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="px-4 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-bold rounded-xl shadow-md transition-all">
+              Add
+            </button>
+          </form>
+        </div>
+        {% else %}
+        <div class="p-3 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B] text-xs font-semibold text-center">
+          🔒 Maximum capacity (3/3) reached
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Access History Panel -->
+      <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-[#334155] pb-3">
+          <h3 class="text-base font-bold text-[#F1F5F9]">📋 Access History</h3>
+          <a href="{% url 'access_log' %}?q={{ locker.locker_number }}" class="text-xs font-bold text-[#3B82F6] hover:underline">View All →</a>
+        </div>
+
+        {% if logs %}
+        <div class="space-y-3">
+          {% for log in logs %}
+          <div class="p-3 rounded-xl bg-[#0F172A] border border-[#334155] flex items-center justify-between text-xs">
+            <div class="space-y-0.5">
+              <div class="font-bold text-[#F1F5F9]">{{ log.customer.name }}</div>
+              <div class="text-[11px] text-[#94A3B8]">{{ log.check_in_time|date:"d M, H:i" }}</div>
+            </div>
+            <div>
+              {% if log.check_out_time %}
+              <span class="text-[11px] font-medium text-[#94A3B8]">{{ log.duration }}</span>
+              {% else %}
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E]">Active</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-[#94A3B8] italic text-center py-4">No access history recorded yet.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function copyToken(token) {
+  navigator.clipboard.writeText(token).then(() => {
+    const btn = document.getElementById('copyTokenBtn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy Token'; }, 2000);
+  });
+}
+</script>
+{% endblock %}

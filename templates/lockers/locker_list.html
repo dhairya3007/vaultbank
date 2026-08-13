@@ -1,0 +1,113 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Lockers{% endblock %}
+{% block page_title %}Lockers{% endblock %}
+
+{% block content %}
+
+<!-- Header Row -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+  <div>
+    <h2 class="text-2xl font-extrabold tracking-tight text-[#F1F5F9]">All Lockers</h2>
+    <p class="text-sm text-[#94A3B8] mt-1">{{ lockers|length }} locker{{ lockers|length|pluralize }} registered in system</p>
+  </div>
+  <a href="{% url 'locker_add' %}" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-[#3B82F6]/25 transition-all flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    Add Locker
+  </a>
+</div>
+
+<!-- Search Bar -->
+<div class="bg-[#1E293B] border border-[#334155] rounded-2xl mb-6 p-4 shadow-lg">
+  <form method="GET" class="flex flex-col sm:flex-row gap-3">
+    <div class="relative flex-1">
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search by locker number..."
+        class="w-full px-4 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#3B82F6] text-sm"
+      />
+    </div>
+    <button type="submit" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">Search</button>
+  </form>
+</div>
+
+{% if lockers %}
+<!-- Tailwind Grid with User's Exact Colors -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  {% for locker in lockers %}
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl hover:border-[#3B82F6]/60 transition-all duration-200 shadow-xl p-5 flex flex-col items-center gap-4">
+
+    <!-- Top Row: Status & Customer Count -->
+    <div class="w-full flex justify-between items-center">
+      {% if locker.is_active %}
+      <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E] flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span> Active
+      </span>
+      {% else %}
+      <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span> Inactive
+      </span>
+      {% endif %}
+      <span class="text-xs font-bold text-[#94A3B8] bg-[#0F172A] px-2.5 py-1 rounded-lg border border-[#334155]">👥 {{ locker.customer_count }}/3</span>
+    </div>
+
+    <!-- Locker Icon -->
+    <div class="w-14 h-14 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6] shadow-inner">
+      <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <circle cx="12" cy="16" r="1.5"/>
+      </svg>
+    </div>
+
+    <!-- Locker Number -->
+    <div class="text-2xl font-black text-[#F1F5F9] tracking-tight">#{{ locker.locker_number }}</div>
+
+    <!-- Customer Capacity Pill -->
+    <div class="px-3 py-1.5 rounded-full text-xs font-bold text-[#3B82F6] bg-[#3B82F6]/10 border border-[#3B82F6]/25">
+      👥 {{ locker.customer_count }} of 3 Assigned
+    </div>
+
+    <!-- Security Protected Token Notice -->
+    <div class="px-3 py-1 rounded-full text-[11px] font-semibold text-[#22C55E] bg-[#22C55E]/10 border border-[#22C55E]/25 flex items-center gap-1.5">
+      <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse"></span> Token &amp; QR Encrypted
+    </div>
+
+    <!-- Action Buttons Row -->
+    <div class="w-full grid grid-cols-3 gap-2 mt-2 pt-3 border-t border-[#334155]">
+      <a href="{% url 'locker_detail' locker.pk %}" class="py-1.5 px-2 rounded-lg bg-[#0F172A] hover:bg-[#3B82F6] text-[#F1F5F9] text-xs font-bold text-center border border-[#334155] transition-colors flex items-center justify-center gap-1" title="View Details">
+        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        View
+      </a>
+      <a
+        href="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=400x400&bgcolor=ffffff&color=000000&margin=20"
+        target="_blank"
+        class="py-1.5 px-2 rounded-lg bg-[#0F172A] hover:bg-[#3B82F6] text-[#F1F5F9] text-xs font-bold text-center border border-[#334155] transition-colors flex items-center justify-center gap-1"
+        title="View/Download Secure QR Code"
+      >
+        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        QR
+      </a>
+      <a href="{% url 'locker_edit' locker.pk %}" class="py-1.5 px-2 rounded-lg bg-[#0F172A] hover:bg-[#3B82F6] text-[#F1F5F9] text-xs font-bold text-center border border-[#334155] transition-colors flex items-center justify-center gap-1" title="Edit Locker">
+        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </a>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-12 text-center shadow-xl">
+  <div class="text-5xl mb-4">🔐</div>
+  <h3 class="text-xl font-bold text-[#F1F5F9]">No lockers found</h3>
+  <p class="text-sm text-[#94A3B8] mt-1 mb-4">{% if query %}No results for "{{ query }}".{% else %}Start by adding your first locker.{% endif %}</p>
+  <div>
+    <a href="{% url 'locker_add' %}" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all inline-block">Add First Locker</a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

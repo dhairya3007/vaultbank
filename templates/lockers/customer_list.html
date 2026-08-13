@@ -1,0 +1,116 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Customers{% endblock %}
+{% block page_title %}Customers{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Header Row -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-2xl font-extrabold tracking-tight text-[#F1F5F9]">All Customers</h2>
+      <p class="text-sm text-[#94A3B8] mt-1">{{ customers|length }} registered customer account{{ customers|length|pluralize }}</p>
+    </div>
+    <a href="{% url 'customer_add' %}" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-[#3B82F6]/25 transition-all flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+      Add Customer
+    </a>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-4 shadow-lg">
+    <form method="GET" class="flex flex-col sm:flex-row gap-3">
+      <div class="relative flex-1">
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          placeholder="Search by customer name..."
+          class="w-full px-4 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#3B82F6] text-sm"
+        />
+      </div>
+      <button type="submit" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">Search</button>
+    </form>
+  </div>
+
+  {% if customers %}
+  <!-- Table Container -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl overflow-x-auto">
+    <table class="w-full text-left text-sm text-[#F1F5F9]">
+      <thead>
+        <tr class="border-b border-[#334155] text-[11px] font-extrabold uppercase tracking-wider text-[#94A3B8]">
+          <th class="pb-3 px-3">#</th>
+          <th class="pb-3 px-3">Customer</th>
+          <th class="pb-3 px-3">ID Proof</th>
+          <th class="pb-3 px-3">Assigned Lockers</th>
+          <th class="pb-3 px-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-[#334155]">
+        {% for customer in customers %}
+        <tr class="hover:bg-[#0F172A]/40 transition-colors">
+          <td class="py-4 px-3 text-xs text-[#94A3B8] font-mono">{{ forloop.counter }}</td>
+          <td class="py-4 px-3">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-[#3B82F6] text-white font-black text-sm flex items-center justify-center shadow">
+                {{ customer.name|first|upper }}
+              </div>
+              <a href="{% url 'customer_detail' customer.pk %}" class="font-extrabold text-[#F1F5F9] hover:text-[#3B82F6] transition-colors">
+                {{ customer.name }}
+              </a>
+            </div>
+          </td>
+          <td class="py-4 px-3">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-[#3B82F6]">
+              {{ customer.get_id_proof_type_display }}
+            </span>
+          </td>
+          <td class="py-4 px-3">
+            {% with lockers=customer.get_lockers %}
+            {% if lockers %}
+            <div class="flex flex-wrap gap-1.5">
+              {% for locker in lockers %}
+              <a href="{% url 'locker_detail' locker.pk %}" class="px-2 py-0.5 rounded-md bg-[#0F172A] border border-[#334155] text-[#3B82F6] hover:border-[#3B82F6] text-xs font-mono font-bold transition-colors">
+                #{{ locker.locker_number }}
+              </a>
+              {% endfor %}
+            </div>
+            {% else %}
+            <span class="text-xs text-[#94A3B8] italic">None</span>
+            {% endif %}
+            {% endwith %}
+          </td>
+          <td class="py-4 px-3 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <a href="{% url 'customer_detail' customer.pk %}" class="px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#3B82F6] text-[#F1F5F9] text-xs font-bold border border-[#334155] transition-colors">
+                View
+              </a>
+              <a href="{% url 'customer_edit' customer.pk %}" class="px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#3B82F6] text-[#F1F5F9] text-xs font-bold border border-[#334155] transition-colors">
+                Edit
+              </a>
+              <a href="{% url 'customer_delete' customer.pk %}" class="px-3 py-1.5 rounded-lg bg-[#EF4444]/15 hover:bg-[#EF4444] text-[#EF4444] hover:text-white text-xs font-bold border border-[#EF4444]/30 transition-colors">
+                Delete
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-12 text-center shadow-xl">
+    <div class="text-5xl mb-4">👤</div>
+    <h3 class="text-xl font-bold text-[#F1F5F9]">No customers found</h3>
+    <p class="text-sm text-[#94A3B8] mt-1 mb-4">{% if query %}No results matching "{{ query }}".{% else %}Start by adding your first customer.{% endif %}</p>
+    <div>
+      <a href="{% url 'customer_add' %}" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all inline-block">
+        Add First Customer
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

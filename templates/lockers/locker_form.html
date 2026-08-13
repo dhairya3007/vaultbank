@@ -1,0 +1,97 @@
+{% extends 'lockers/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-4">
+  <div class="bg-[#1E293B] border border-[#334155] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+
+    <!-- Form Title -->
+    <div class="border-b border-[#334155] pb-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-[#3B82F6] font-extrabold flex items-center justify-center text-lg">
+        🔐
+      </div>
+      <div>
+        <h2 class="text-2xl font-black text-[#F1F5F9] tracking-tight">{{ title }}</h2>
+        <p class="text-xs text-[#94A3B8]">Configure locker parameters and assignment rules</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="space-y-1.5">
+        <label class="block text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]" for="{{ field.id_for_label }}">
+          {{ field.label }}
+        </label>
+        
+        <!-- Render form widget with styled class wrapper if needed -->
+        <div class="relative">
+          {{ field }}
+        </div>
+
+        {% if field.errors %}
+        <div class="p-2.5 rounded-lg bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-xs font-semibold">
+          {{ field.errors.as_text }}
+        </div>
+        {% endif %}
+
+        {% if field.help_text %}
+        <div class="text-xs text-[#94A3B8] font-medium">{{ field.help_text }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <!-- Token display box -->
+      {% if locker %}
+      <div class="p-4 rounded-2xl bg-[#0F172A] border border-[#334155] space-y-2">
+        <label class="block text-xs font-extrabold uppercase tracking-wider text-[#3B82F6]">
+          🔑 Auto-Generated Encrypted Token
+        </label>
+        <div class="flex items-center justify-between gap-3">
+          <code id="tokenVal" class="text-xs text-[#F1F5F9] font-mono select-all bg-[#1E293B] px-3 py-1.5 rounded-lg border border-[#334155] flex-1 break-all">
+            {{ locker.token }}
+          </code>
+          <button type="button" class="px-3 py-1.5 rounded-lg bg-[#3B82F6] text-white text-xs font-bold transition-all shadow" onclick="copyToken()">
+            📋 Copy
+          </button>
+        </div>
+        <p class="text-[11px] text-[#94A3B8]">This unique token is auto-generated upon creation and cannot be modified.</p>
+      </div>
+      {% else %}
+      <div class="p-4 rounded-2xl bg-[#0F172A] border border-[#3B82F6]/30 flex items-start gap-3 text-xs">
+        <span class="text-xl">🔑</span>
+        <div class="space-y-1">
+          <strong class="text-[#F1F5F9] block font-bold">Secure Token Generation</strong>
+          <p class="text-[#94A3B8]">A unique 22-character security token and QR code will be generated automatically when you save this locker.</p>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="pt-4 border-t border-[#334155] flex flex-wrap gap-3">
+        <button type="submit" class="flex-1 bg-[#3B82F6] hover:bg-[#2563EB] text-white py-3 px-6 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all text-center">
+          💾 Save Locker
+        </button>
+        <a href="javascript:history.back()" class="px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#334155] text-[#F1F5F9] font-bold text-sm border border-[#334155] transition-all text-center">
+          Cancel
+        </a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+function copyToken() {
+  const val = document.getElementById('tokenVal').textContent.trim();
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+  });
+}
+</script>
+{% endblock %}

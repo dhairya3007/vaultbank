@@ -1,0 +1,72 @@
+from django import forms
+from .models import Locker, Customer, LockerUser, AccessLog
+
+
+class LockerForm(forms.ModelForm):
+    class Meta:
+        model = Locker
+        fields = ['locker_number', 'is_active']   # token is auto-generated
+        widgets = {
+            'locker_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. A-101'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['name', 'id_proof_type', 'id_proof_file']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
+            'id_proof_type': forms.Select(attrs={'class': 'form-control'}),
+            'id_proof_file': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+
+class LockerUserForm(forms.ModelForm):
+    class Meta:
+        model = LockerUser
+        fields = ['customer']
+        widgets = {
+            'customer': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, locker=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if locker:
+            # Exclude customers already linked to this locker
+            existing_ids = LockerUser.objects.filter(locker=locker).values_list('customer_id', flat=True)
+            self.fields['customer'].queryset = Customer.objects.exclude(id__in=existing_ids)
+            self.locker = locker
+
+    def clean(self):
+        cleaned_data = super().clean()
+        customer = cleaned_data.get('customer')
+        locker = getattr(self, 'locker', None)
+        if locker and customer:
+            count = LockerUser.objects.filter(locker=locker).count()
+            if count >= 3:
+                raise forms.ValidationError(
+                    f"Locker #{locker.locker_number} already has 3 customers (maximum allowed)."
+                )
+            if LockerUser.objects.filter(locker=locker, customer=customer).exists():
+                raise forms.ValidationError(
+                    f"{customer.name} is already assigned to this locker."
+                )
+        return cleaned_data
+
+
+class ScanTokenForm(forms.Form):
+    token = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control scan-input',
+            'placeholder': 'Scan or enter locker token...',
+            'autofocus': True,
+        })
+    )
+
+
+class CheckInForm(forms.Form):
+    customer_id = forms.IntegerField(widget=forms.HiddenInput())
+    locker_id = forms.IntegerField(widget=forms.HiddenInput())

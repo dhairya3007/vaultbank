@@ -1,0 +1,150 @@
+{% extends 'lockers/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Stat Cards Grid with User's Exact Color Palette -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    
+    <!-- Stat 1: Total Lockers -->
+    <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">Total Lockers</span>
+        <div class="w-9 h-9 rounded-xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6] text-lg">🔐</div>
+      </div>
+      <div>
+        <div class="text-3xl font-black text-[#F1F5F9]">{{ total_lockers }}</div>
+        <div class="text-xs text-[#94A3B8] mt-1 font-medium">Registered units</div>
+      </div>
+    </div>
+    
+    <!-- Stat 2: Active Lockers -->
+    <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">Active Lockers</span>
+        <div class="w-9 h-9 rounded-xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#22C55E] text-lg">✅</div>
+      </div>
+      <div>
+        <div class="text-3xl font-black text-[#22C55E]">{{ active_lockers }}</div>
+        <div class="text-xs text-[#94A3B8] mt-1 font-medium">Operational</div>
+      </div>
+    </div>
+    
+    <!-- Stat 3: Customers -->
+    <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">Customers</span>
+        <div class="w-9 h-9 rounded-xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6] text-lg">👥</div>
+      </div>
+      <div>
+        <div class="text-3xl font-black text-[#F1F5F9]">{{ total_customers }}</div>
+        <div class="text-xs text-[#94A3B8] mt-1 font-medium">Registered users</div>
+      </div>
+    </div>
+
+    <!-- Stat 4: Active Sessions -->
+    <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">Active Sessions</span>
+        <div class="w-9 h-9 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/30 flex items-center justify-center text-[#F59E0B] text-lg">🔓</div>
+      </div>
+      <div>
+        <div class="text-3xl font-black text-[#F59E0B]">{{ active_sessions }}</div>
+        <div class="text-xs text-[#94A3B8] mt-1 font-medium">Currently checked in</div>
+      </div>
+    </div>
+
+    <!-- Stat 5: Unassigned -->
+    <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">Unassigned</span>
+        <div class="w-9 h-9 rounded-xl bg-[#EF4444]/15 border border-[#EF4444]/30 flex items-center justify-center text-[#EF4444] text-lg">⚠️</div>
+      </div>
+      <div>
+        <div class="text-3xl font-black text-[#EF4444]">{{ unassigned_lockers }}</div>
+        <div class="text-xs text-[#94A3B8] mt-1 font-medium">Empty slots</div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl">
+    <h3 class="text-lg font-bold text-[#F1F5F9] mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a href="{% url 'scan_token' %}" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white py-3 px-4 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all flex items-center justify-center gap-2">
+        <span>🔍</span> Scan Token
+      </a>
+      <a href="{% url 'locker_add' %}" class="bg-[#0F172A] hover:bg-[#0F172A]/80 text-[#F1F5F9] border border-[#334155] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+        <span>➕</span> Add Locker
+      </a>
+      <a href="{% url 'customer_add' %}" class="bg-[#0F172A] hover:bg-[#0F172A]/80 text-[#F1F5F9] border border-[#334155] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+        <span>👤</span> Add Customer
+      </a>
+      <a href="{% url 'access_log' %}" class="bg-[#0F172A] hover:bg-[#0F172A]/80 text-[#F1F5F9] border border-[#334155] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+        <span>📋</span> View Logs
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Activity Table -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl space-y-4">
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-bold text-[#F1F5F9]">Recent Activity</h3>
+      <a href="{% url 'access_log' %}" class="text-xs font-bold text-[#3B82F6] hover:underline">View All →</a>
+    </div>
+    
+    {% if recent_logs %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-[#F1F5F9]">
+        <thead>
+          <tr class="border-b border-[#334155] text-[11px] font-extrabold uppercase tracking-wider text-[#94A3B8]">
+            <th class="pb-3">Customer</th>
+            <th class="pb-3">Locker</th>
+            <th class="pb-3">Check-In</th>
+            <th class="pb-3">Check-Out</th>
+            <th class="pb-3">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#334155]">
+          {% for log in recent_logs %}
+          <tr class="hover:bg-[#0F172A]/40 transition-colors">
+            <td class="py-3.5 font-bold">
+              <a href="{% url 'customer_detail' log.customer.pk %}" class="text-[#3B82F6] hover:underline">
+                {{ log.customer.name }}
+              </a>
+            </td>
+            <td class="py-3.5 font-semibold text-[#F1F5F9]">
+              <a href="{% url 'locker_detail' log.locker.pk %}" class="hover:underline">
+                #{{ log.locker.locker_number }}
+              </a>
+            </td>
+            <td class="py-3.5 text-[#94A3B8]">{{ log.check_in_time|date:"d M, H:i" }}</td>
+            <td class="py-3.5 text-[#94A3B8]">
+              {% if log.check_out_time %}
+                {{ log.check_out_time|date:"d M, H:i" }}
+              {% else %}
+                <span class="text-[#94A3B8]/50">—</span>
+              {% endif %}
+            </td>
+            <td class="py-3.5">
+              {% if log.is_currently_active %}
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E]">Active</span>
+              {% else %}
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#94A3B8]/15 border border-[#94A3B8]/40 text-[#94A3B8]">Closed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-center text-[#94A3B8] py-8">No activity logged yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
