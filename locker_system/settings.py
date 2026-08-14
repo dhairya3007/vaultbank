@@ -101,15 +101,46 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# Reverse Proxy & HTTPS support for cloud deployments (Vercel, Render, Railway, etc.)
+# Reverse Proxy & HTTPS support for cloud deployments (Vercel, Render, Railway, AWS, etc.)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
-# Rock-solid Session & Auth Configuration
+# CSRF Trusted Origins for development and production domains
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.environ.get(
+        'CSRF_TRUSTED_ORIGINS',
+        'http://localhost:8000,http://127.0.0.1:8000,https://*.vercel.app,https://*.onrender.com,https://*.railway.app'
+    ).split(',') if origin.strip()
+]
+
+# ─── Rock-solid Session & Auth Configuration ──────────────────────────────────
+# 1. Database-backed sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# 2. Session expiration: 14 days
 SESSION_COOKIE_AGE = 1209600  # 14 days in seconds
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist session across browser restarts
+
+# 3. Disable saving on every request to prevent DB write race conditions and session key collisions
+SESSION_SAVE_EVERY_REQUEST = False
+
+# 4. Custom cookie names to prevent namespace collisions
+SESSION_COOKIE_NAME = 'vaultbank_sessionid'
+CSRF_COOKIE_NAME = 'vaultbank_csrftoken'
+
+# 5. Security flags: True in production (HTTPS), False in local development (HTTP)
+IS_SECURE_ENV = not DEBUG or os.environ.get('DJANGO_SECURE_COOKIE', 'false').lower() == 'true'
+SESSION_COOKIE_SECURE = IS_SECURE_ENV
+CSRF_COOKIE_SECURE = IS_SECURE_ENV
+
+# 6. HTTPOnly and SameSite policy
 SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_DOMAIN = None
 
 # Store flash messages in session to avoid 4KB cookie overflow and session drops
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+

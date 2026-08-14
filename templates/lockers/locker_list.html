@@ -1,4 +1,4 @@
-﻿{% extends 'lockers/base.html' %}
+{% extends 'lockers/base.html' %}
 {% block title %}Lockers{% endblock %}
 {% block page_title %}Lockers{% endblock %}
 
@@ -53,13 +53,13 @@
       <!-- Instant Search Input -->
       <div class="relative flex-1">
         <svg xmlns="http://www.w3.org/2000/svg"
-          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none"
+          class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none"
           viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
         </svg>
         <input type="text" x-model="search" placeholder="Instant search by locker number or token…"
-          class="vb-input pl-9 pr-8" autofocus />
+          class="vb-input vb-search-input !pl-10 !pr-10" autofocus />
         <!-- Clear button -->
         <button type="button" x-show="search.length > 0" @click="search = ''"
           class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded-md transition-colors"
@@ -71,30 +71,30 @@
       </div>
 
       <!-- Quick Status & Lease Filter Pills -->
-      <div class="flex p-1 bg-[#0F172A] border border-[#334155] rounded-lg gap-1 overflow-x-auto shrink-0">
+      <div class="flex p-1 bg-[#0F172A] border border-[#334155] rounded-lg gap-1 overflow-x-auto no-scrollbar shrink-0">
         <button type="button" @click="statusFilter = 'all'"
           :class="statusFilter === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
+          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
           All
         </button>
         <button type="button" @click="statusFilter = 'active'"
           :class="statusFilter === 'active' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
+          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
           Active
         </button>
         <button type="button" @click="statusFilter = 'expiring_soon'"
           :class="statusFilter === 'expiring_soon' ? 'bg-amber-600 text-white shadow-sm' : 'text-amber-400 hover:text-amber-300'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
+          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
           Expiring Soon
         </button>
         <button type="button" @click="statusFilter = 'overdue'"
           :class="statusFilter === 'overdue' ? 'bg-red-600 text-white shadow-sm' : 'text-red-400 hover:text-red-300'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
+          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
           Overdue
         </button>
         <button type="button" @click="statusFilter = 'vacant'"
           :class="statusFilter === 'vacant' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
+          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
           Available Slot
         </button>
       </div>

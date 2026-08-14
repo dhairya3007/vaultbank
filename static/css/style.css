@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    VaultBank SaaS – style.css
    Core SaaS Design System Tokens, Animations & Micro-Interactions
    Tech Stack: Tailwind CSS + Flowbite + Alpine.js + Heroicons
@@ -15,6 +15,10 @@
   --color-border: #334155;
   --color-primary: #3B82F6;
   --color-primary-hover: #2563EB;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────── */
@@ -39,46 +43,70 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
 }
 
-/* ── Scrollbars ───────────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Safe area padding utilities */
+.pt-safe {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
 }
-::-webkit-scrollbar-track {
-  background: var(--color-bg);
-}
-::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 /* ── SaaS Form Controls ───────────────────────────────────────────────── */
 .vb-input {
   width: 100%;
-  padding: 0.625rem 0.875rem;
+  padding: 0.75rem 1rem;
   background-color: #0F172A;
   border: 1px solid #334155;
   border-radius: 0.75rem;
   color: #F1F5F9;
-  font-size: 0.875rem;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.18s ease;
   outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .vb-input::placeholder {
   color: #64748B;
+  font-weight: 400;
 }
 .vb-input:focus {
   border-color: #3B82F6;
   background-color: #111C33;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .vb-input option {
   background-color: #1E293B;
   color: #F1F5F9;
 }
+
+/* Search and icon-padded inputs */
+.vb-input.pl-9,
+.vb-input.pl-10,
+.vb-input.\!pl-10,
+.vb-input-search,
+.vb-search-input {
+  padding-left: 2.625rem !important;
+}
+.vb-input.pr-8,
+.vb-input.pr-9,
+.vb-input.pr-10,
+.vb-input.\!pr-10,
+.vb-input-search,
+.vb-search-input {
+  padding-right: 2.5rem !important;
+}
+
+/* WebKit Date/Time Input Color Scheme */
+input[type="date"].vb-input {
+  color-scheme: dark;
+  position: relative;
+}
+input[type="date"].vb-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.8) sepia(100%) hue-rotate(180deg) brightness(1.2);
+  padding: 4px;
+}
+
 
 /* ── SaaS Table Enhancements ──────────────────────────────────────────── */
 .vb-table {

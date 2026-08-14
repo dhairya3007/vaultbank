@@ -207,3 +207,6 @@ Visit: **http://127.0.0.1:8000/**
 ## 📝 License
 
 MIT License – For educational/internal banking MVP use.
+
+
+in this u can see the above nav bar how it looks also when i open sidebar still i can touch bihide that i can scroll it thats the problem 
