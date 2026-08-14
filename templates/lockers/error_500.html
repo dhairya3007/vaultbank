@@ -1,39 +1,28 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>500 Server Error | VaultBank</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>500 Server Error — VaultBank</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] } } }
-    }
-  </script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
-<body class="bg-[#0F172A] text-[#F1F5F9] font-sans antialiased min-h-screen flex items-center justify-center p-6">
-  <div class="text-center max-w-md w-full">
-    <div class="w-24 h-24 rounded-3xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center justify-center text-5xl mx-auto mb-8 shadow-inner">
-      ??
+<body class="bg-[#0F172A] text-slate-100 min-h-screen flex items-center justify-center p-6">
+  <div class="text-center space-y-6 max-w-md">
+    <div class="inline-flex p-5 rounded-2xl bg-red-500/10 border border-red-500/20 mx-auto">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
     </div>
-    <div class="text-8xl font-black text-[#F59E0B]/30 leading-none mb-2">500</div>
-    <h1 class="text-2xl font-black text-[#F1F5F9] tracking-tight mb-3">Server Error</h1>
-    <p class="text-sm text-[#94A3B8] leading-relaxed mb-8">
-      Something went wrong on our end. The vault system encountered an unexpected issue. Please try again in a moment.
-    </p>
-    <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <a href="/" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all">
-        Go to Dashboard
-      </a>
-      <a href="javascript:location.reload()" class="bg-[#1E293B] hover:bg-[#334155] text-[#F1F5F9] px-6 py-3 rounded-xl font-bold text-sm border border-[#334155] transition-all">
-        Try Again
-      </a>
+    <div>
+      <p class="text-6xl font-black text-red-400">500</p>
+      <h1 class="text-2xl font-bold text-white mt-2">Internal Server Error</h1>
+      <p class="text-slate-400 text-sm mt-2">Something went wrong on our end. Please try again or contact support.</p>
     </div>
-    <div class="mt-12 text-xs text-[#334155] font-semibold tracking-widest uppercase">VaultBank Locker Enterprise</div>
+    <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors shadow-lg shadow-blue-500/20">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+      Go to Dashboard
+    </a>
   </div>
 </body>
 </html>

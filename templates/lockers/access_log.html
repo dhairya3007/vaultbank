@@ -1,115 +1,170 @@
-{% extends 'lockers/base.html' %}
+﻿{% extends 'lockers/base.html' %}
 {% block title %}Access Logs{% endblock %}
-{% block page_title %}Access Audit Logs{% endblock %}
+{% block page_title %}Audit Logs{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-5" x-data="{
+       search: '{{ query|escapejs }}',
+       statusFilter: '{{ status|escapejs }}' || 'all',
+       get totalRows() {
+         return document.querySelectorAll('.log-row-item').length;
+       },
+       get visibleRows() {
+         return Array.from(document.querySelectorAll('.log-row-item')).filter(el => el.style.display !== 'none').length;
+       },
+       matches(customer, locker, checkIn, checkOut, status) {
+         const q = this.search.toLowerCase().trim();
+         const matchText = !q || customer.toLowerCase().includes(q) || locker.toLowerCase().includes(q) || checkIn.toLowerCase().includes(q);
+         
+         let matchStatus = true;
+         if (this.statusFilter === 'active') matchStatus = (status === 'active');
+         if (this.statusFilter === 'closed') matchStatus = (status === 'closed');
+         
+         return matchText && matchStatus;
+       }
+     }">
 
-  <!-- Header Row -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div>
-      <h2 class="text-2xl font-extrabold tracking-tight text-[#F1F5F9]">Access Audit Logs</h2>
-      <p class="text-sm text-[#94A3B8] mt-1">Complete security trail of locker check-ins and check-outs</p>
+  <!-- Header -->
+  <div>
+    <h2 class="text-xl font-bold text-white">Access Audit Logs</h2>
+    <p class="text-sm text-slate-400 mt-0.5">
+      <span
+        x-text="search || statusFilter !== 'all' ? `Showing ${visibleRows} of ${totalRows} audit entries` : 'Complete security trail of locker check-ins and check-outs'">
+        Complete security trail of locker check-ins and check-outs
+      </span>
+    </p>
+  </div>
+
+  <!-- Advanced Real-time Search & Filter -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
+    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+
+      <!-- Instant Search Input -->
+      <div class="relative flex-1">
+        <svg xmlns="http://www.w3.org/2000/svg"
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none"
+          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        <input type="text" x-model="search" placeholder="Instant search by customer name, locker #, or timestamp… "
+          class="vb-input pl-9 pr-8" autofocus />
+        <button type="button" x-show="search.length > 0" @click="search = ''"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded-md transition-colors"
+          title="Clear search" x-cloak>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Instant Status Tabs -->
+      <div class="flex p-1 bg-[#0F172A] border border-[#334155] rounded-lg gap-1 shrink-0">
+        <button type="button" @click="statusFilter = 'all'"
+          :class="statusFilter === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+          class="px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all">
+          All
+        </button>
+        <button type="button" @click="statusFilter = 'active'"
+          :class="statusFilter === 'active' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+          class="px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all">
+          Active Now
+        </button>
+        <button type="button" @click="statusFilter = 'closed'"
+          :class="statusFilter === 'closed' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+          class="px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all">
+          Closed
+        </button>
+      </div>
+
     </div>
   </div>
 
-  <!-- Search & Filter Bar -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-4 shadow-lg flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
-    <form method="GET" class="flex flex-col sm:flex-row gap-3 flex-1">
-      <div class="relative flex-1">
-        <input
-          type="text"
-          name="q"
-          value="{{ query }}"
-          placeholder="Search by customer name or locker number..."
-          class="w-full px-4 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#3B82F6] text-sm"
-        />
-      </div>
-      
-      <!-- Status Filter Tabs -->
-      <div class="flex p-1 bg-[#0F172A] border border-[#334155] rounded-xl">
-        <a href="?{% if query %}q={{ query }}&{% endif %}status=" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {% if not status %}bg-[#3B82F6] text-white shadow{% else %}text-[#94A3B8] hover:text-[#F1F5F9]{% endif %}">
-          All
-        </a>
-        <a href="?{% if query %}q={{ query }}&{% endif %}status=active" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {% if status == 'active' %}bg-[#3B82F6] text-white shadow{% else %}text-[#94A3B8] hover:text-[#F1F5F9]{% endif %}">
-          Active
-        </a>
-        <a href="?{% if query %}q={{ query }}&{% endif %}status=closed" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {% if status == 'closed' %}bg-[#3B82F6] text-white shadow{% else %}text-[#94A3B8] hover:text-[#F1F5F9]{% endif %}">
-          Closed
-        </a>
-      </div>
-
-      <button type="submit" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
-        Filter
-      </button>
-    </form>
-  </div>
-
   {% if logs %}
-  <!-- Table Container -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl overflow-x-auto">
-    <table class="w-full text-left text-sm text-[#F1F5F9]">
-      <thead>
-        <tr class="border-b border-[#334155] text-[11px] font-extrabold uppercase tracking-wider text-[#94A3B8]">
-          <th class="pb-3 px-3">#</th>
-          <th class="pb-3 px-3">Customer</th>
-          <th class="pb-3 px-3">Locker</th>
-          <th class="pb-3 px-3">Check-In Time</th>
-          <th class="pb-3 px-3">Check-Out Time</th>
-          <th class="pb-3 px-3">Duration</th>
-          <th class="pb-3 px-3">Status</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-[#334155]">
-        {% for log in logs %}
-        <tr class="hover:bg-[#0F172A]/40 transition-colors">
-          <td class="py-4 px-3 text-xs text-[#94A3B8] font-mono">{{ forloop.counter }}</td>
-          <td class="py-4 px-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-[#3B82F6] text-white font-bold text-xs flex items-center justify-center shadow">
-                {{ log.customer.name|first|upper }}
+  <div class="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full vb-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Locker</th>
+            <th>Check-In Time</th>
+            <th>Check-Out Time</th>
+            <th>Duration</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr class="log-row-item"
+            x-show="matches('{{ log.customer.name|escapejs }}', '{{ log.locker.locker_number|escapejs }}', '{{ log.check_in_time|date:"
+            d M Y H:i"|escapejs }}', '{{ log.check_out_time|date:"d M Y H:i"|escapejs }}'
+            , '{% if log.check_out_time %}closed{% else %}active{% endif %}' )">
+            <td class="text-xs text-slate-500 font-mono">{{ forloop.counter }}</td>
+            <td>
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  {{ log.customer.name|first|upper }}
+                </div>
+                <a href="{% url 'customer_detail' log.customer.pk %}"
+                  class="font-semibold text-white hover:text-blue-400 transition-colors">
+                  {{ log.customer.name }}
+                </a>
               </div>
-              <a href="{% url 'customer_detail' log.customer.pk %}" class="font-bold text-[#F1F5F9] hover:text-[#3B82F6] transition-colors">
-                {{ log.customer.name }}
+            </td>
+            <td>
+              <a href="{% url 'locker_detail' log.locker.pk %}"
+                class="font-mono font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                #{{ log.locker.locker_number }}
               </a>
-            </div>
-          </td>
-          <td class="py-4 px-3 font-mono font-bold text-[#3B82F6]">
-            <a href="{% url 'locker_detail' log.locker.pk %}" class="hover:underline">
-              #{{ log.locker.locker_number }}
-            </a>
-          </td>
-          <td class="py-4 px-3 text-xs text-[#94A3B8]">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
-          <td class="py-4 px-3 text-xs text-[#94A3B8]">
-            {% if log.check_out_time %}
+            </td>
+            <td class="text-xs text-slate-300">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
+            <td class="text-xs text-slate-400">
+              {% if log.check_out_time %}
               {{ log.check_out_time|date:"d M Y, H:i" }}
-            {% else %}
-              <span class="text-[#94A3B8]/40">—</span>
-            {% endif %}
-          </td>
-          <td class="py-4 px-3 text-xs font-medium">{{ log.duration }}</td>
-          <td class="py-4 px-3">
-            {% if log.is_currently_active %}
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E] flex items-center gap-1.5 w-max">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse"></span> Active
-            </span>
-            {% else %}
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#94A3B8]/15 border border-[#94A3B8]/40 text-[#94A3B8] w-max block">
-              Closed
-            </span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+              {% else %}
+              <span class="text-slate-600">&mdash;</span>
+              {% endif %}
+            </td>
+            <td class="text-xs font-medium text-slate-300">{{ log.duration }}</td>
+            <td>
+              {% if log.check_out_time %}
+              <span class="badge-slate">Closed</span>
+              {% else %}
+              <span class="badge-green"><span class="dot-pulse"></span> Active</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Live No Match Message -->
+    <div x-show="visibleRows === 0 && totalRows > 0" x-cloak class="p-8 text-center">
+      <p class="text-sm text-slate-400">No audit logs matching current filter & search "<span
+          class="text-white font-medium" x-text="search"></span>".</p>
+      <button type="button" @click="search = ''; statusFilter = 'all'"
+        class="mt-3 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors">
+        Reset Filters
+      </button>
+    </div>
   </div>
 
   {% else %}
-  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-12 text-center shadow-xl">
-    <div class="text-5xl mb-4">📋</div>
-    <h3 class="text-xl font-bold text-[#F1F5F9]">No audit logs found</h3>
-    <p class="text-sm text-[#94A3B8] mt-1">{% if query %}No audit logs matching "{{ query }}".{% else %}No access records logged yet.{% endif %}</p>
+  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-12 text-center">
+    <div class="w-12 h-12 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24"
+        stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+      </svg>
+    </div>
+    <h3 class="text-base font-semibold text-white mb-1">No logs found</h3>
+    <p class="text-sm text-slate-400">No access records logged yet.</p>
   </div>
   {% endif %}
 

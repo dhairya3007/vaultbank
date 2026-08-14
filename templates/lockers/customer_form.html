@@ -1,54 +1,31 @@
-{% extends 'lockers/base.html' %}
+﻿{% extends 'lockers/base.html' %}
 {% block title %}{{ title }}{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
-
 {% block content %}
-<div class="max-w-2xl mx-auto py-4">
-  <div class="bg-[#1E293B] border border-[#334155] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
-
-    <!-- Form Title -->
-    <div class="border-b border-[#334155] pb-4 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-[#3B82F6] font-extrabold flex items-center justify-center text-lg">
-        👤
+<div class="max-w-xl mx-auto">
+  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden shadow-xl">
+    <div class="flex items-center gap-3 px-6 py-5 border-b border-[#334155] bg-[#0F172A]/40">
+      <div class="w-9 h-9 rounded-xl bg-blue-600/15 border border-blue-500/30 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
       </div>
       <div>
-        <h2 class="text-2xl font-black text-[#F1F5F9] tracking-tight">{{ title }}</h2>
-        <p class="text-xs text-[#94A3B8]">Enter customer identity proof details</p>
+        <h2 class="text-base font-bold text-white">{{ title }}</h2>
+        <p class="text-xs text-slate-400">Enter customer identity details</p>
       </div>
     </div>
-
-    <!-- Form -->
-    <form method="POST" enctype="multipart/form-data" class="space-y-5">
+    <form method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
       {% csrf_token %}
-
       {% for field in form %}
       <div class="space-y-1.5">
-        <label class="block text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]" for="{{ field.id_for_label }}">
-          {{ field.label }}
-        </label>
-        
-        <div>
-          {{ field }}
-        </div>
-
-        {% if field.errors %}
-        <div class="p-2.5 rounded-lg bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-xs font-semibold">
-          {{ field.errors.as_text }}
-        </div>
-        {% endif %}
+        <label for="{{ field.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">{{ field.label }}</label>
+        <div>{{ field }}</div>
+        {% if field.errors %}<p class="text-xs text-red-400 mt-1">{{ field.errors.as_text }}</p>{% endif %}
       </div>
       {% endfor %}
-
-      <!-- Action Buttons -->
-      <div class="pt-4 border-t border-[#334155] flex flex-wrap gap-3">
-        <button type="submit" class="flex-1 bg-[#3B82F6] hover:bg-[#2563EB] text-white py-3 px-6 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all text-center">
-          💾 Save Customer
-        </button>
-        <a href="javascript:history.back()" class="px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#334155] text-[#F1F5F9] font-bold text-sm border border-[#334155] transition-all text-center">
-          Cancel
-        </a>
+      <div class="flex gap-3 pt-2 border-t border-[#334155]">
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors">Save Customer</button>
+        <a href="javascript:history.back()" class="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-[#334155] transition-colors">Cancel</a>
       </div>
-
     </form>
   </div>
 </div>

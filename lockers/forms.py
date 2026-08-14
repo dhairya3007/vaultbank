@@ -1,14 +1,19 @@
 from django import forms
 from .models import Locker, Customer, LockerUser, AccessLog
 
+_INPUT = 'vb-input'
+_SELECT = 'vb-input'
+_FILE = 'vb-input text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer'
+_CHECK = 'w-4 h-4 rounded accent-blue-500 cursor-pointer'
+
 
 class LockerForm(forms.ModelForm):
     class Meta:
         model = Locker
         fields = ['locker_number', 'is_active']   # token is auto-generated
         widgets = {
-            'locker_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. A-101'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'locker_number': forms.TextInput(attrs={'class': _INPUT, 'placeholder': 'e.g. A-101'}),
+            'is_active': forms.CheckboxInput(attrs={'class': _CHECK}),
         }
 
 
@@ -17,9 +22,9 @@ class CustomerForm(forms.ModelForm):
         model = Customer
         fields = ['name', 'id_proof_type', 'id_proof_file']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
-            'id_proof_type': forms.Select(attrs={'class': 'form-control'}),
-            'id_proof_file': forms.FileInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': _INPUT, 'placeholder': 'Full Name'}),
+            'id_proof_type': forms.Select(attrs={'class': _SELECT}),
+            'id_proof_file': forms.FileInput(attrs={'class': _FILE}),
         }
 
 
@@ -28,7 +33,7 @@ class LockerUserForm(forms.ModelForm):
         model = LockerUser
         fields = ['customer']
         widgets = {
-            'customer': forms.Select(attrs={'class': 'form-control'}),
+            'customer': forms.Select(attrs={'class': _SELECT}),
         }
 
     def __init__(self, locker=None, *args, **kwargs):
@@ -60,7 +65,7 @@ class ScanTokenForm(forms.Form):
     token = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={
-            'class': 'form-control scan-input',
+            'class': _INPUT,
             'placeholder': 'Scan or enter locker token...',
             'autofocus': True,
         })

@@ -1,345 +1,129 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   VaultBank Locker System – responsive.css
-   MEDIA QUERIES ONLY – no base styles in this file
-   Breakpoints: 1200px | 1024px | 768px | 480px
-   ═══════════════════════════════════════════════════════════════════════════ */
+﻿/* ==========================================================================
+   VaultBank SaaS – responsive.css
+   Specialized Responsive Rules, Touch Optimizations & Breakpoint Refinements
+   Stack: Tailwind CSS + Flowbite + Alpine.js
+   ========================================================================== */
 
-/* ── 1200px – Large Tablets / Small Laptops ─────────────────────────────────── */
-@media (max-width: 1200px) {
-  .stats-row {
-    grid-template-columns: repeat(3, 1fr);
+/* ── Mobile Touch & Tap Target Enhancements ───────────────────────────── */
+@media (pointer: coarse) {
+  button, a, input, select, textarea {
+    min-height: 38px;
   }
-
-  .detail-layout {
-    grid-template-columns: 1fr 300px;
+  
+  .vb-input {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
   }
 }
 
-/* ── 1024px – Tablets Landscape ────────────────────────────────────────────── */
+/* ── Tablet & Small Laptop Refinements (<= 1024px) ────────────────────── */
 @media (max-width: 1024px) {
-  :root {
-    --sidebar-w: 220px;
-  }
-
-  .stats-row {
+  .dashboard-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .stat-card:last-child {
-    grid-column: span 2;
-  }
-
-  .detail-layout {
+  .detail-layout-grid {
     grid-template-columns: 1fr;
   }
-
-  .detail-side {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .login-left {
-    padding: 48px 40px;
-  }
-
-  .form-card {
-    padding: 32px;
+  
+  .table-responsive-container {
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-/* ── 768px – Tablets Portrait ───────────────────────────────────────────────── */
+/* ── Mobile Devices (<= 768px) ────────────────────────────────────────── */
 @media (max-width: 768px) {
-
-  /* Sidebar: slide-off canvas */
-  .sidebar {
-    transform: translateX(-100%);
-    box-shadow: none;
+  /* Scrollbar fine-tuning */
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
   }
 
-  .sidebar.open {
-    transform: translateX(0);
-    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5);
+  /* Stat cards 2-column on mobile */
+  .stats-grid-mobile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
   }
 
-  .sidebar-overlay.open {
-    display: block;
+  /* Make tables easy to swipe with horizontal gradient hints */
+  .table-scroll-hint {
+    position: relative;
+  }
+  .table-scroll-hint::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 20px;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, rgba(15, 23, 42, 0.8));
   }
 
-  /* Main content fills full width */
-  .main-content {
-    margin-left: 0;
-  }
-
-  /* Show hamburger button */
-  .menu-toggle {
-    display: flex;
-  }
-
-  /* Topbar adjustments */
-  .topbar {
-    padding: 0 16px;
-  }
-
-  .topbar-title {
-    font-size: 15px;
-  }
-
-  /* Page content padding */
-  .page-content {
-    padding: 16px;
-  }
-
-  /* Messages */
-  .messages-container {
-    padding: 12px 16px 0;
-  }
-
-  /* Stats: 2 columns */
-  .stats-row {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .stat-card:last-child {
-    grid-column: auto;
-  }
-
-  .stat-value {
-    font-size: 22px;
-  }
-
-  /* Page header stacks */
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  /* Quick actions wrap */
-  .quick-actions {
-    flex-wrap: wrap;
-  }
-
-  .quick-btn {
-    min-width: calc(50% - 6px);
-    flex: none;
-  }
-
-  /* Tables: horizontal scroll */
-  .data-table {
-    font-size: 13px;
-  }
-
-  .data-table thead th,
-  .data-table tbody td {
-    padding: 10px 12px;
-  }
-
-  /* Locker QR grid: 2 cols on tablets */
-  .locker-qr-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-
-  /* Scan check-in page responsive adjustments */
-  .checkin-steps {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .step-line {
-    display: none;
-  }
-
-  .checkin-locker-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .customer-checkin-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Btn group stacks */
-  .section-header {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-}
-
-/* ── 480px – Mobile Phones ──────────────────────────────────────────────────── */
-@media (max-width: 480px) {
-
-  /* Stats: 1 column */
-  .stats-row {
-    grid-template-columns: 1fr;
-  }
-
-  .stat-card:last-child {
-    grid-column: auto;
-  }
-
-  /* Quick actions: 1 col */
-  .quick-btn {
-    min-width: 100%;
-  }
-
-  /* Locker QR grid: 1 col on mobile */
-  .locker-qr-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .checkin-actions {
+  /* Form actions full width on small screens */
+  .btn-stack-mobile {
     flex-direction: column;
     width: 100%;
   }
-
-  .checkin-actions .btn {
-    width: 100%;
+  .btn-stack-mobile > * {
+    width: 100% !important;
+    text-align: center;
     justify-content: center;
   }
 
-  /* Topbar */
-  .topbar {
-    padding: 0 12px;
+  /* Modal & Card padding */
+  .card-p-mobile {
+    padding: 1rem !important;
+  }
+}
+
+/* ── Very Small Phones (<= 480px) ─────────────────────────────────────── */
+@media (max-width: 480px) {
+  .stats-grid-mobile {
+    grid-template-columns: 1fr;
   }
 
-  .topbar-title {
-    font-size: 14px;
-  }
-
-  /* Page content */
-  .page-content {
-    padding: 12px;
-  }
-
-  /* Section card */
-  .section-card {
-    padding: 16px;
-  }
-
-  /* Scan card */
-  .scan-card {
-    padding: 24px 16px;
-    border-radius: var(--radius);
-  }
-
-  .scan-title {
-    font-size: 20px;
-  }
-
-  /* Table: hide less important cols */
-  .data-table .hide-mobile {
+  .brand-logo-text {
     display: none;
   }
 
-  /* Profile hero */
-  .profile-hero {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  /* Form row */
-  .form-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .form-row .btn {
+  .qr-box-mobile {
     width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
   }
 
-  /* Action buttons */
-  .action-btns {
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-
-  /* Page heading */
-  .page-heading {
-    font-size: 20px;
-  }
-
-  /* Customer radio cards */
-  .radio-customer-card {
-    padding: 10px 12px;
-    gap: 10px;
-  }
-
-  /* Btn group */
-  .btn-group {
-    flex-wrap: wrap;
-  }
-
-  /* Badge wrapping in table */
-  .locker-chips, .customer-chips {
-    flex-wrap: wrap;
-  }
-
-  /* Log list */
-  .log-body {
-    font-size: 12px;
-  }
-}
-
-/* ── 360px – Very Small Phones ──────────────────────────────────────────────── */
-@media (max-width: 360px) {
-
-  .topbar-actions .btn span:not(.btn-icon) {
+  .topbar-right-text {
     display: none;
   }
-
-  .stat-value {
-    font-size: 20px;
-  }
-
-  .section-title {
-    font-size: 14px;
-  }
-
-  .form-card {
-    padding: 16px 12px;
-  }
-
-  .nav-label {
-    font-size: 13px;
-  }
 }
 
-/* ── Print Styles ───────────────────────────────────────────────────────────── */
+/* ── Print Stylesheet ─────────────────────────────────────────────────── */
 @media print {
-  .sidebar,
-  .topbar,
-  .btn,
-  .messages-container,
-  .quick-actions,
-  .search-bar,
-  .filter-bar {
+  aside,
+  header,
+  #topbar,
+  #sidebar,
+  .no-print,
+  button,
+  .action-buttons {
     display: none !important;
   }
 
-  .main-content {
-    margin-left: 0;
-  }
-
-  .page-content {
-    padding: 0;
-  }
-
   body {
-    background: #fff;
-    color: #000;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
   }
 
-  .section-card {
-    border: 1px solid #ddd;
-    box-shadow: none;
+  .print-clean {
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    background: white !important;
+    color: black !important;
   }
 
-  .data-table thead th {
-    background: #f5f5f5;
-    color: #333;
+  a {
+    text-decoration: underline;
+    color: #000000 !important;
   }
 }

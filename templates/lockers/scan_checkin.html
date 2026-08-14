@@ -1,172 +1,142 @@
-{% extends 'lockers/base.html' %}
+﻿{% extends 'lockers/base.html' %}
 {% block title %}Process Entry — Locker #{{ locker.locker_number }}{% endblock %}
 {% block page_title %}Process Access Entry{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-5" x-data="{ allSelected: false }">
 
-  <!-- Progress Bar Header -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-4 shadow-lg flex items-center justify-between gap-4 text-xs font-bold">
-    <div class="flex items-center gap-2 text-[#22C55E]">
-      <span class="w-6 h-6 rounded-full bg-[#22C55E]/15 border border-[#22C55E]/40 flex items-center justify-center text-xs">✓</span>
-      Step 1: Token Code Verified
+  <!-- Progress Steps -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-xl px-5 py-3.5 flex items-center gap-4">
+    <div class="flex items-center gap-2 text-green-400 text-sm font-semibold">
+      <span class="w-6 h-6 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+      </span>
+      Step 1: Token Verified
     </div>
-    <div class="h-0.5 flex-1 bg-[#334155] mx-2"></div>
-    <div class="flex items-center gap-2 text-[#3B82F6]">
-      <span class="w-6 h-6 rounded-full bg-[#3B82F6]/15 border border-[#3B82F6]/40 flex items-center justify-center text-xs">2</span>
-      Step 2: Select Customer &amp; Process Entry
+    <div class="flex-1 h-px bg-[#334155]"></div>
+    <div class="flex items-center gap-2 text-blue-400 text-sm font-semibold">
+      <span class="w-6 h-6 rounded-full bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-xs">2</span>
+      Step 2: Select &amp; Process
     </div>
   </div>
 
-  <!-- Locker Info Header Bar -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div class="flex items-center gap-4">
-      <div class="w-12 h-12 rounded-2xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6] text-2xl">
-        🔐
+  <!-- Locker info bar -->
+  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
       </div>
       <div>
-        <h2 class="text-xl font-black text-[#F1F5F9] tracking-tight">Locker #{{ locker.locker_number }}</h2>
-        <code class="text-xs text-[#3B82F6] font-mono bg-[#0F172A] px-2 py-0.5 rounded border border-[#334155]">{{ locker.token }}</code>
+        <h2 class="text-base font-bold text-white">Locker #{{ locker.locker_number }}</h2>
+        <code class="text-xs text-blue-400 font-mono">{{ locker.token }}</code>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#22C55E]">Active Locker</span>
-      <span class="text-xs font-semibold text-[#94A3B8]">{{ customers|length }} customer{{ customers|length|pluralize }} registered</span>
+    <div class="flex items-center gap-2.5">
+      <span class="badge-green"><span class="dot-pulse"></span> Active</span>
+      <span class="text-xs text-slate-400">{{ customers|length }} customer{{ customers|length|pluralize }} registered</span>
     </div>
   </div>
 
-  <!-- Active Session Warning Callout -->
+  <!-- Active session warning -->
   {% if active_log %}
-  <div class="bg-[#1E293B] border border-[#F59E0B]/40 rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+  <div class="bg-[#1E293B] border border-amber-500/30 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
     <div class="flex items-center gap-3">
-      <span class="text-2xl">🟢</span>
+      <span class="badge-amber"><span class="dot-pulse"></span> Occupied</span>
       <div>
-        <div class="font-extrabold text-[#F1F5F9] text-base">{{ active_log.customer.name }} is currently inside this locker.</div>
-        <div class="text-xs text-[#94A3B8]">Check-in time: {{ active_log.check_in_time|date:"d M, H:i" }}</div>
+        <p class="text-sm font-semibold text-white">{{ active_log.customer.name }} is currently inside</p>
+        <p class="text-xs text-slate-400">Check-in: {{ active_log.check_in_time|date:"d M, H:i" }}</p>
       </div>
     </div>
     <form method="POST" action="{% url 'check_out' active_log.pk %}">
       {% csrf_token %}
-      <button type="submit" class="px-4 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-black font-bold text-xs shadow-md transition-all">
-        ⬆️ Process Check Out
-      </button>
+      <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm transition-colors">Process Check-Out</button>
     </form>
   </div>
   {% endif %}
 
-  <!-- Customer Selection Form -->
+  <!-- Customer selection form -->
   {% if customers %}
-  <form method="POST" id="checkinForm" class="space-y-6">
+  <form method="POST" id="checkinForm" class="space-y-5">
     {% csrf_token %}
-
-    <div class="flex justify-between items-center">
-      <h3 class="text-lg font-bold text-[#F1F5F9] tracking-tight">Authorised Customers — Select to Process Entry</h3>
-      <label class="cursor-pointer flex items-center gap-2 bg-[#1E293B] px-3 py-1.5 rounded-xl border border-[#334155]">
-        <input type="checkbox" id="selectAll" onchange="toggleAll(this)" class="w-4 h-4 rounded accent-[#3B82F6]" />
-        <span class="font-semibold text-xs text-[#94A3B8]">Select All</span>
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-bold text-white">Authorised Customers</h3>
+      <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-slate-200 transition-colors">
+        <input type="checkbox" id="selectAll" class="w-4 h-4 rounded accent-blue-500"
+          x-model="allSelected"
+          @change="document.querySelectorAll('.cc-checkbox:not(:disabled)').forEach(c => c.checked = allSelected)" />
+        Select All
       </label>
     </div>
 
-    <!-- Grid of Customer Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {% for customer in customers %}
-      <label class="bg-[#1E293B] border border-[#334155] hover:border-[#3B82F6]/60 rounded-2xl p-5 cursor-pointer transition-all shadow-xl relative flex items-start gap-4 cc-card" for="cust_{{ customer.pk }}">
-        
-        <!-- Checkbox -->
-        <div class="pt-1">
-          <input
-            type="checkbox"
-            name="customer_ids"
-            value="{{ customer.pk }}"
-            id="cust_{{ customer.pk }}"
-            class="w-4 h-4 rounded accent-[#3B82F6] cc-checkbox"
-            {% if customer.is_active_now %}disabled title="Already checked in"{% endif %}
-          />
-        </div>
+      <label class="relative cursor-pointer group" for="cust_{{ customer.pk }}">
+        <input type="checkbox" name="customer_ids" value="{{ customer.pk }}" id="cust_{{ customer.pk }}"
+          class="cc-checkbox peer absolute opacity-0 w-0 h-0"
+          {% if customer.is_active_now %}disabled{% endif %} />
 
-        <!-- Avatar -->
-        <div class="w-11 h-11 rounded-full bg-[#3B82F6] text-white font-black text-sm flex items-center justify-center shrink-0 shadow">
-          {{ customer.name|first|upper }}
-        </div>
-
-        <!-- Customer Details -->
-        <div class="flex-1 min-w-0 space-y-2">
-          <div class="font-extrabold text-base text-[#F1F5F9] truncate">{{ customer.name }}</div>
-          <div>
-            <span class="px-2 py-0.5 rounded-lg bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-[#3B82F6] text-[11px] font-bold">
-              {{ customer.get_id_proof_type_display }}
-            </span>
+        <div class="h-full bg-[#1E293B] border border-[#334155] peer-checked:border-blue-500 peer-checked:bg-blue-600/5 rounded-xl p-4 transition-all card-hover flex items-start gap-3">
+          <!-- Checkbox indicator -->
+          <div class="w-5 h-5 rounded border-2 border-[#334155] peer-checked:border-blue-500 peer-checked:bg-blue-500 flex items-center justify-center shrink-0 mt-0.5 transition-all {% if customer.is_active_now %}opacity-40{% endif %}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
           </div>
 
-          {% if customer.is_active_now %}
-          <div class="px-2 py-0.5 rounded-full bg-[#22C55E]/15 border border-[#22C55E]/30 text-[#22C55E] text-[10px] font-bold w-max">
-            🟢 Currently Inside
-          </div>
-          {% endif %}
+          <!-- Avatar -->
+          <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0">{{ customer.name|first|upper }}</div>
 
-          <!-- ID Proof Link -->
-          <div class="pt-1">
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-white text-sm truncate">{{ customer.name }}</p>
+            <span class="badge-blue mt-1 inline-block">{{ customer.get_id_proof_type_display }}</span>
+            {% if customer.is_active_now %}
+            <p class="mt-1"><span class="badge-green">Currently Inside</span></p>
+            {% endif %}
             {% if customer.id_proof_file %}
-              {% if customer.proof_is_image %}
-              <a href="{{ customer.id_proof_file.url }}" target="_blank" class="block relative rounded-lg overflow-hidden border border-[#334155] max-w-[180px] h-20 group">
-                <img src="{{ customer.id_proof_file.url }}" alt="ID Proof" class="w-full h-full object-cover" />
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity">
-                  🔍 View Full ID
-                </div>
-              </a>
-              {% else %}
-              <a href="{{ customer.id_proof_file.url }}" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#0F172A] border border-[#334155] text-xs font-bold text-[#3B82F6] hover:underline inline-block">
-                📄 View Document (.{{ customer.proof_ext }})
-              </a>
-              {% endif %}
+            {% if customer.proof_is_image %}
+            <a href="{{ customer.id_proof_file.url }}" target="_blank" class="mt-2 block rounded-lg overflow-hidden border border-[#334155] max-w-[140px] h-16 group/img">
+              <img src="{{ customer.id_proof_file.url }}" alt="ID" class="w-full h-full object-cover group-hover/img:opacity-80 transition-opacity" />
+            </a>
             {% else %}
-              <span class="text-xs text-[#94A3B8] italic">No document uploaded</span>
+            <a href="{{ customer.id_proof_file.url }}" target="_blank" class="mt-2 inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+              View (.{{ customer.proof_ext }})
+            </a>
+            {% endif %}
             {% endif %}
           </div>
-
         </div>
       </label>
       {% endfor %}
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex flex-wrap gap-3 pt-2">
-      <button type="submit" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white py-3 px-6 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all flex items-center gap-2" onclick="return validateSelection()">
-        ✅ Process Entry
+    <!-- Action row -->
+    <div class="flex flex-wrap gap-3">
+      <button type="submit" onclick="return validateCheckinSelection()"
+        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/20 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+        Process Entry
       </button>
-      <a href="{% url 'scan_token' %}" class="px-5 py-3 rounded-xl bg-[#0F172A] hover:bg-[#334155] text-[#F1F5F9] font-bold text-sm border border-[#334155] transition-all">
-        ← Scan Another
-      </a>
-      <a href="{% url 'locker_detail' locker.pk %}" class="px-5 py-3 rounded-xl bg-[#0F172A] hover:bg-[#334155] text-[#F1F5F9] font-bold text-sm border border-[#334155] transition-all">
-        Manage Locker
-      </a>
+      <a href="{% url 'scan_token' %}" class="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-[#334155] transition-colors">Scan Another</a>
+      <a href="{% url 'locker_detail' locker.pk %}" class="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-[#334155] transition-colors">Manage Locker</a>
     </div>
-
   </form>
 
   {% else %}
-  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl p-12 text-center shadow-xl">
-    <div class="text-5xl mb-4">👤</div>
-    <h3 class="text-xl font-bold text-[#F1F5F9]">No Customers Assigned</h3>
-    <p class="text-sm text-[#94A3B8] mt-1 mb-4">This locker has no registered customers. Please assign customers before processing entry.</p>
-    <div>
-      <a href="{% url 'locker_detail' locker.pk %}" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all inline-block">
-        Manage Locker
-      </a>
+  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-12 text-center">
+    <div class="w-12 h-12 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
     </div>
+    <h3 class="text-base font-semibold text-white mb-1">No Customers Assigned</h3>
+    <p class="text-sm text-slate-400 mb-4">Please assign customers before processing entry.</p>
+    <a href="{% url 'locker_detail' locker.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">Manage Locker</a>
   </div>
   {% endif %}
 
 </div>
-
+{% endblock %}
+{% block extra_js %}
 <script>
-function toggleAll(master) {
-  document.querySelectorAll('.cc-checkbox:not(:disabled)').forEach(cb => {
-    cb.checked = master.checked;
-  });
-}
-
-function validateSelection() {
+function validateCheckinSelection() {
   const selected = document.querySelectorAll('.cc-checkbox:checked').length;
   if (selected === 0) {
     alert('Please select at least one customer before processing entry.');
