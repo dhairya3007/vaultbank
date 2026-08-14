@@ -4,10 +4,43 @@
    Stack: Tailwind CSS + Flowbite + Alpine.js
    ========================================================================== */
 
+/* ── Base Mobile & Safe-Area Setup ───────────────────────────────────── */
+html, body {
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+body.overflow-hidden {
+  overflow: hidden !important;
+  touch-action: none !important;
+  -webkit-overflow-scrolling: auto !important;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Topbar Opaque & Safe-Area Handling ───────────────────────────────── */
+#topbar {
+  background-color: #1E293B !important;
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Mobile Sidebar Drawer & Backdrop ────────────────────────────────── */
+#mobileSidebarWrapper aside {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior: contain;
+}
+
+#mobileSidebarWrapper .touch-none {
+  touch-action: none !important;
+}
+
 /* ── Mobile Touch & Tap Target Enhancements ───────────────────────────── */
 @media (pointer: coarse) {
-  button, a, input, select, textarea {
-    min-height: 38px;
+  button, a, select, textarea, input:not([type="checkbox"]):not([type="radio"]) {
+    min-height: 42px;
   }
   
   .vb-input {
@@ -32,34 +65,16 @@
 
 /* ── Mobile Devices (<= 768px) ────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* Scrollbar fine-tuning */
   ::-webkit-scrollbar {
     width: 3px;
     height: 3px;
   }
 
-  /* Stat cards 2-column on mobile */
   .stats-grid-mobile {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
   }
 
-  /* Make tables easy to swipe with horizontal gradient hints */
-  .table-scroll-hint {
-    position: relative;
-  }
-  .table-scroll-hint::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 20px;
-    pointer-events: none;
-    background: linear-gradient(to right, transparent, rgba(15, 23, 42, 0.8));
-  }
-
-  /* Form actions full width on small screens */
   .btn-stack-mobile {
     flex-direction: column;
     width: 100%;
@@ -70,7 +85,6 @@
     justify-content: center;
   }
 
-  /* Modal & Card padding */
   .card-p-mobile {
     padding: 1rem !important;
   }
@@ -80,50 +94,5 @@
 @media (max-width: 480px) {
   .stats-grid-mobile {
     grid-template-columns: 1fr;
-  }
-
-  .brand-logo-text {
-    display: none;
-  }
-
-  .qr-box-mobile {
-    width: 100%;
-    max-width: 200px;
-    margin: 0 auto;
-  }
-
-  .topbar-right-text {
-    display: none;
-  }
-}
-
-/* ── Print Stylesheet ─────────────────────────────────────────────────── */
-@media print {
-  aside,
-  header,
-  #topbar,
-  #sidebar,
-  .no-print,
-  button,
-  .action-buttons {
-    display: none !important;
-  }
-
-  body {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    font-size: 12pt;
-  }
-
-  .print-clean {
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: none !important;
-    background: white !important;
-    color: black !important;
-  }
-
-  a {
-    text-decoration: underline;
-    color: #000000 !important;
   }
 }
