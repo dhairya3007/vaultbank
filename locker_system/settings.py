@@ -101,9 +101,15 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# Session configuration to preserve authentication across server restarts & serverless reloads
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
-SESSION_COOKIE_AGE = 604800  # 7 days in seconds
+# Reverse Proxy & HTTPS support for cloud deployments (Vercel, Render, Railway, etc.)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Rock-solid Session & Auth Configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600  # 14 days in seconds
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Store flash messages in session to avoid 4KB cookie overflow and session drops
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
