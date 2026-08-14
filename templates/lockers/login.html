@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'] } } } }</script>
   <link href="https://cdn.jsdelivr.net/npm/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
@@ -23,15 +24,11 @@
     <div class="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-[#1E293B] to-[#0F172A] border-r border-[#334155]">
       <div>
         <!-- Logo -->
-        <div class="flex items-center gap-3 mb-10">
-          <div class="w-10 h-10 rounded-xl bg-blue-600/15 border border-blue-500/30 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-            </svg>
-          </div>
+        <div class="flex items-center gap-3.5 mb-10">
+          <img src="{% static 'img/logo.png' %}" alt="VaultBank Logo" class="w-12 h-12 rounded-2xl object-contain bg-[#0F172A] border border-amber-500/30 p-1.5 shadow-xl shadow-amber-500/10" />
           <div>
-            <span class="font-bold text-xl text-white block">VaultBank</span>
-            <span class="text-[10px] font-semibold tracking-widest text-blue-400 uppercase">Locker Enterprise</span>
+            <span class="font-extrabold text-2xl text-white block tracking-wide">VaultBank</span>
+            <span class="text-[11px] font-bold tracking-widest text-amber-400 uppercase">Locker Enterprise</span>
           </div>
         </div>
 
@@ -74,11 +71,12 @@
     <div class="p-8 sm:p-10 flex flex-col justify-center space-y-6">
 
       <!-- Mobile logo -->
-      <div class="md:hidden flex items-center gap-2.5 mb-2">
-        <div class="w-8 h-8 rounded-lg bg-blue-600/15 border border-blue-500/30 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+      <div class="md:hidden flex items-center gap-3 mb-2">
+        <img src="{% static 'img/logo.png' %}" alt="VaultBank Logo" class="w-10 h-10 rounded-xl object-contain bg-[#0F172A] border border-amber-500/20 p-1 shadow-sm" />
+        <div>
+          <span class="font-bold text-white block leading-tight">VaultBank</span>
+          <span class="text-[9px] font-bold text-amber-400 uppercase tracking-wider block">Enterprise</span>
         </div>
-        <span class="font-bold text-white">VaultBank</span>
       </div>
 
       <div>
