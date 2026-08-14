@@ -10,9 +10,13 @@ _CHECK = 'w-4 h-4 rounded accent-blue-500 cursor-pointer'
 class LockerForm(forms.ModelForm):
     class Meta:
         model = Locker
-        fields = ['locker_number', 'is_active']   # token is auto-generated
+        fields = ['locker_number', 'annual_fee', 'lease_start_date', 'lease_end_date', 'payment_status', 'is_active']
         widgets = {
             'locker_number': forms.TextInput(attrs={'class': _INPUT, 'placeholder': 'e.g. A-101'}),
+            'annual_fee': forms.NumberInput(attrs={'class': _INPUT, 'placeholder': '500.00', 'step': '0.01'}),
+            'lease_start_date': forms.DateInput(attrs={'class': _INPUT, 'type': 'date'}),
+            'lease_end_date': forms.DateInput(attrs={'class': _INPUT, 'type': 'date'}),
+            'payment_status': forms.Select(attrs={'class': _SELECT}),
             'is_active': forms.CheckboxInput(attrs={'class': _CHECK}),
         }
 
@@ -20,9 +24,11 @@ class LockerForm(forms.ModelForm):
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
-        fields = ['name', 'id_proof_type', 'id_proof_file']
+        fields = ['name', 'phone_number', 'email', 'id_proof_type', 'id_proof_file']
         widgets = {
             'name': forms.TextInput(attrs={'class': _INPUT, 'placeholder': 'Full Name'}),
+            'phone_number': forms.TextInput(attrs={'class': _INPUT, 'placeholder': '+1 (555) 000-0000'}),
+            'email': forms.EmailInput(attrs={'class': _INPUT, 'placeholder': 'customer@example.com'}),
             'id_proof_type': forms.Select(attrs={'class': _SELECT}),
             'id_proof_file': forms.FileInput(attrs={'class': _FILE}),
         }

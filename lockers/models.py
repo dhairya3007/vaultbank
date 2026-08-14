@@ -9,6 +9,12 @@ def generate_locker_token():
 
 
 class Locker(models.Model):
+    PAYMENT_STATUS_CHOICES = [
+        ('paid', 'Paid'),
+        ('pending', 'Pending Payment'),
+        ('overdue', 'Payment Overdue'),
+    ]
+
     locker_number = models.CharField(max_length=20, unique=True)
     token = models.CharField(
         max_length=100, unique=True,
@@ -16,6 +22,10 @@ class Locker(models.Model):
         editable=False,   # shown read-only in admin/forms
     )
     is_active = models.BooleanField(default=True)
+    annual_fee = models.DecimalField(max_digits=10, decimal_places=2, default=500.00, help_text="Annual rent fee")
+    lease_start_date = models.DateField(null=True, blank=True, help_text="Start date of lease agreement")
+    lease_end_date = models.DateField(null=True, blank=True, help_text="Expiration date of lease agreement")
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='paid')
 
     def __str__(self):
         return f"Locker #{self.locker_number}"
@@ -33,6 +43,30 @@ class Locker(models.Model):
         """Capacity as integer 0-100 for use in widthratio template tag."""
         return (self.customer_count * 100) // 3
 
+    @property
+    def lease_status(self):
+        from django.utils import timezone
+        import datetime
+        today = timezone.now().date()
+
+        if self.payment_status == 'overdue':
+            return 'overdue'
+        if self.lease_end_date:
+            if self.lease_end_date < today:
+                return 'overdue'
+            if today <= self.lease_end_date <= (today + datetime.timedelta(days=30)) or self.payment_status == 'pending':
+                return 'expiring_soon'
+        elif self.payment_status == 'pending':
+            return 'expiring_soon'
+        return 'current'
+
+    @property
+    def days_until_expiration(self):
+        from django.utils import timezone
+        if self.lease_end_date:
+            return (self.lease_end_date - timezone.now().date()).days
+        return None
+
     class Meta:
         ordering = ['locker_number']
 
@@ -47,6 +81,8 @@ class Customer(models.Model):
     ]
 
     name = models.CharField(max_length=200)
+    phone_number = models.CharField(max_length=20, blank=True, null=True, help_text="Phone number for SMS/WhatsApp alerts")
+    email = models.EmailField(blank=True, null=True, help_text="Email address for access notifications")
     id_proof_type = models.CharField(max_length=50, choices=ID_PROOF_CHOICES)
     id_proof_file = models.FileField(upload_to='id_proofs/')
 

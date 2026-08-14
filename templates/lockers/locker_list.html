@@ -1,18 +1,18 @@
-{% extends 'lockers/base.html' %}
+﻿{% extends 'lockers/base.html' %}
 {% block title %}Lockers{% endblock %}
 {% block page_title %}Lockers{% endblock %}
 
 {% block content %}
 <div class="space-y-5" x-data="{
        search: '{{ query|escapejs }}',
-       statusFilter: 'all',
+       statusFilter: '{{ request.GET.lease|default:"all"|escapejs }}',
        get totalCards() {
          return document.querySelectorAll('.locker-card-item').length;
        },
        get visibleCards() {
          return Array.from(document.querySelectorAll('.locker-card-item')).filter(el => el.style.display !== 'none').length;
        },
-       matches(name, token, status, isVacant) {
+       matches(name, token, status, isVacant, leaseStatus) {
          const q = this.search.toLowerCase().trim();
          const matchText = !q || name.toLowerCase().includes(q) || token.toLowerCase().includes(q);
          
@@ -20,7 +20,8 @@
          if (this.statusFilter === 'active') matchStatus = (status === 'active');
          if (this.statusFilter === 'inactive') matchStatus = (status === 'inactive');
          if (this.statusFilter === 'vacant') matchStatus = (isVacant === 'true');
-         if (this.statusFilter === 'full') matchStatus = (isVacant === 'false');
+         if (this.statusFilter === 'expiring_soon') matchStatus = (leaseStatus === 'expiring_soon');
+         if (this.statusFilter === 'overdue') matchStatus = (leaseStatus === 'overdue');
          
          return matchText && matchStatus;
        }
@@ -29,18 +30,16 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h2 class="text-xl font-bold text-white">All Lockers</h2>
+      <h2 class="text-xl font-bold text-white">All Lockers &amp; Lease Portfolios</h2>
       <p class="text-sm text-slate-400 mt-0.5">
-        <span
-          x-text="search || statusFilter !== 'all' ? `Showing ${visibleCards} of ${totalCards} lockers` : '{{ lockers|length }} locker{{ lockers|length|pluralize }} registered'">
+        <span x-text="search || statusFilter !== 'all' ? `Showing ${visibleCards} of ${totalCards} lockers` : '{{ lockers|length }} locker{{ lockers|length|pluralize }} registered'">
           {{ lockers|length }} locker{{ lockers|length|pluralize }} registered
         </span>
       </p>
     </div>
     <a href="{% url 'locker_add' %}"
       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 transition-colors shrink-0">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2"
-        stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       Add Locker
@@ -65,14 +64,13 @@
         <button type="button" x-show="search.length > 0" @click="search = ''"
           class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded-md transition-colors"
           title="Clear search" x-cloak>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <!-- Quick Status Filter Pills -->
+      <!-- Quick Status & Lease Filter Pills -->
       <div class="flex p-1 bg-[#0F172A] border border-[#334155] rounded-lg gap-1 overflow-x-auto shrink-0">
         <button type="button" @click="statusFilter = 'all'"
           :class="statusFilter === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
@@ -84,10 +82,15 @@
           class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
           Active
         </button>
-        <button type="button" @click="statusFilter = 'inactive'"
-          :class="statusFilter === 'inactive' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+        <button type="button" @click="statusFilter = 'expiring_soon'"
+          :class="statusFilter === 'expiring_soon' ? 'bg-amber-600 text-white shadow-sm' : 'text-amber-400 hover:text-amber-300'"
           class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
-          Inactive
+          Expiring Soon
+        </button>
+        <button type="button" @click="statusFilter = 'overdue'"
+          :class="statusFilter === 'overdue' ? 'bg-red-600 text-white shadow-sm' : 'text-red-400 hover:text-red-300'"
+          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all">
+          Overdue
         </button>
         <button type="button" @click="statusFilter = 'vacant'"
           :class="statusFilter === 'vacant' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
@@ -104,38 +107,58 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
     {% for locker in lockers %}
     <div class="locker-card-item card-hover bg-[#1E293B] border border-[#334155] rounded-xl p-5 flex flex-col gap-4"
-      x-show="matches('{{ locker.locker_number|escapejs }}', '{{ locker.token|escapejs }}', '{% if locker.is_active %}active{% else %}inactive{% endif %}', '{% if locker.customer_count < 3 %}true{% else %}false{% endif %}')"
+      x-show="matches('{{ locker.locker_number|escapejs }}', '{{ locker.token|escapejs }}', '{% if locker.is_active %}active{% else %}inactive{% endif %}', '{% if locker.customer_count < 3 %}true{% else %}false{% endif %}', '{{ locker.lease_status }}')"
       x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95"
       x-transition:enter-end="opacity-100 scale-100">
 
-      <!-- Top row -->
+      <!-- Top row: Status & Capacity -->
       <div class="flex items-center justify-between">
-        {% if locker.is_active %}
+        {% if locker.lease_status == 'overdue' %}
+        <span class="badge-red"><span class="dot-pulse"></span> Overdue</span>
+        {% elif locker.lease_status == 'expiring_soon' %}
+        <span class="badge-amber"><span class="dot-pulse"></span> Expiring Soon</span>
+        {% elif locker.is_active %}
         <span class="badge-green"><span class="dot-pulse"></span> Active</span>
         {% else %}
-        <span class="badge-red">Inactive</span>
+        <span class="badge-slate">Inactive</span>
         {% endif %}
 
-        <span
-          class="text-xs font-semibold px-2.5 py-1 rounded-lg border {% if locker.customer_count == 3 %}bg-amber-500/10 border-amber-500/30 text-amber-400{% else %}bg-[#0F172A] border-[#334155] text-slate-400{% endif %}">
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg border {% if locker.customer_count == 3 %}bg-amber-500/10 border-amber-500/30 text-amber-400{% else %}bg-[#0F172A] border-[#334155] text-slate-400{% endif %}">
           {{ locker.customer_count }}/3 slots
         </span>
       </div>
 
       <!-- Icon & number -->
-      <div class="flex flex-col items-center gap-2 py-2">
-        <div
-          class="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center shadow-inner">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24"
-            stroke-width="1.8" stroke="currentColor">
+      <div class="flex flex-col items-center gap-2 py-1">
+        <div class="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center shadow-inner">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
           </svg>
         </div>
         <span class="text-2xl font-bold text-white tracking-tight">#{{ locker.locker_number }}</span>
-        <span
-          class="text-xs text-slate-400 font-mono select-all bg-[#0F172A] px-2 py-0.5 rounded border border-[#334155]/60">{{
-          locker.token|truncatechars:14 }}</span>
+        <span class="text-xs text-slate-400 font-mono select-all bg-[#0F172A] px-2 py-0.5 rounded border border-[#334155]/60">{{ locker.token|truncatechars:14 }}</span>
+      </div>
+
+      <!-- Lease & Rent Info -->
+      <div class="p-2.5 rounded-lg bg-[#0F172A] border border-[#334155]/70 flex items-center justify-between text-xs">
+        <div>
+          <span class="text-slate-400 font-medium">Rent:</span>
+          <strong class="text-white font-mono ml-1">${{ locker.annual_fee|floatformat:0 }}/yr</strong>
+        </div>
+        <div class="text-right">
+          {% if locker.lease_end_date %}
+            {% if locker.lease_status == 'overdue' %}
+            <span class="text-red-400 font-semibold font-mono">Expired {{ locker.lease_end_date|date:"d M" }}</span>
+            {% elif locker.lease_status == 'expiring_soon' %}
+            <span class="text-amber-400 font-semibold font-mono">{{ locker.days_until_expiration }}d left</span>
+            {% else %}
+            <span class="text-slate-400 font-mono">End: {{ locker.lease_end_date|date:"M Y" }}</span>
+            {% endif %}
+          {% else %}
+          <span class="text-slate-500 italic">No lease date</span>
+          {% endif %}
+        </div>
       </div>
 
       <!-- Capacity Progress bar -->
@@ -161,10 +184,8 @@
       <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[#334155]">
         <a href="{% url 'locker_detail' locker.pk %}"
           class="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-[#0F172A] hover:bg-blue-600 text-slate-300 hover:text-white text-xs font-medium border border-[#334155] hover:border-transparent transition-all shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
           </svg>
           View
@@ -172,21 +193,16 @@
         <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=400x400&bgcolor=ffffff&color=000000&margin=20"
           target="_blank"
           class="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-[#0F172A] hover:bg-blue-600 text-slate-300 hover:text-white text-xs font-medium border border-[#334155] hover:border-transparent transition-all shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
           </svg>
           QR
         </a>
         <a href="{% url 'locker_edit' locker.pk %}"
           class="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-[#0F172A] hover:bg-blue-600 text-slate-300 hover:text-white text-xs font-medium border border-[#334155] hover:border-transparent transition-all shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
           </svg>
           Edit
         </a>
@@ -199,17 +215,13 @@
   <!-- Live No Search Match State -->
   <div x-show="visibleCards === 0 && totalCards > 0" x-cloak
     class="bg-[#1E293B] border border-[#334155] rounded-xl p-12 text-center">
-    <div
-      class="w-12 h-12 rounded-full bg-slate-800 border border-[#334155] flex items-center justify-center mx-auto mb-4 text-slate-400">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-        stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+    <div class="w-12 h-12 rounded-full bg-slate-800 border border-[#334155] flex items-center justify-center mx-auto mb-4 text-slate-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
       </svg>
     </div>
     <h3 class="text-base font-semibold text-white mb-1">No matching lockers found</h3>
-    <p class="text-sm text-slate-400 mb-4">No lockers matched "<span class="text-white font-medium"
-        x-text="search"></span>".</p>
+    <p class="text-sm text-slate-400 mb-4">No lockers matched "<span class="text-white font-medium" x-text="search"></span>".</p>
     <button type="button" @click="search = ''; statusFilter = 'all'"
       class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
       Reset Filters
@@ -220,18 +232,15 @@
   <!-- Empty state (no lockers in DB) -->
   <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-12 text-center">
     <div class="w-12 h-12 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24"
-        stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
       </svg>
     </div>
     <h3 class="text-base font-semibold text-white mb-1">No lockers found</h3>
     <p class="text-sm text-slate-400 mb-4">Start by adding your first locker.</p>
     <a href="{% url 'locker_add' %}"
       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2"
-        stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       Add First Locker

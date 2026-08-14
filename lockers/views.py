@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -5,20 +6,56 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.core.mail import send_mail
 from .models import Locker, Customer, LockerUser, AccessLog
 from .forms import LockerForm, CustomerForm, LockerUserForm, ScanTokenForm
+
+logger = logging.getLogger(__name__)
+
+
+def send_access_notification(customer, locker, log):
+    """
+    Dispatches automated SMS/WhatsApp and Email security access alerts.
+    Message format: 'VaultBank Alert: Locker #A-101 was accessed by John Doe on 14 Aug at 14:15.'
+    """
+    timestamp = log.check_in_time.strftime('%d %b at %H:%M') if log.check_in_time else timezone.now().strftime('%d %b at %H:%M')
+    msg = f"VaultBank Alert: Locker #{locker.locker_number} was accessed by {customer.name} on {timestamp}."
+    
+    # 1. Log simulated SMS/WhatsApp dispatch
+    logger.info(f"[SMS/WhatsApp TO {customer.phone_number or 'Profile'}] {msg}")
+    
+    # 2. Email dispatch if customer has email configured
+    if customer.email:
+        try:
+            send_mail(
+                subject=f"VaultBank Security Alert — Locker #{locker.locker_number}",
+                message=msg,
+                from_email="security@vaultbank.local",
+                recipient_list=[customer.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            logger.warning(f"Could not send email alert: {e}")
+            
+    return msg
 
 
 # ─── Dashboard ────────────────────────────────────────────────────────────────
 
 @login_required
 def dashboard(request):
-    total_lockers = Locker.objects.count()
-    active_lockers = Locker.objects.filter(is_active=True).count()
+    lockers = list(Locker.objects.all())
+    total_lockers = len(lockers)
+    active_lockers = sum(1 for l in lockers if l.is_active)
     total_customers = Customer.objects.count()
     active_sessions = AccessLog.objects.filter(check_out_time__isnull=True).count()
     recent_logs = AccessLog.objects.select_related('locker', 'customer')[:10]
     unassigned_lockers = Locker.objects.filter(locker_users__isnull=True, is_active=True).count()
+
+    expiring_soon_count = sum(1 for l in lockers if l.lease_status == 'expiring_soon')
+    overdue_count = sum(1 for l in lockers if l.lease_status == 'overdue')
+    active_lease_count = sum(1 for l in lockers if l.lease_status == 'current')
+    total_annual_revenue = sum(l.annual_fee for l in lockers)
 
     context = {
         'total_lockers': total_lockers,
@@ -27,6 +64,10 @@ def dashboard(request):
         'active_sessions': active_sessions,
         'recent_logs': recent_logs,
         'unassigned_lockers': unassigned_lockers,
+        'expiring_soon_count': expiring_soon_count,
+        'overdue_count': overdue_count,
+        'active_lease_count': active_lease_count,
+        'total_annual_revenue': total_annual_revenue,
     }
     return render(request, 'lockers/dashboard.html', context)
 
@@ -272,12 +313,13 @@ def scan_checkin(request, pk):
                 if already:
                     messages.warning(request, f"{customer.name} is already checked in.")
                     continue
-                AccessLog.objects.create(locker=locker, customer=customer)
-                checked_in.append(customer.name)
+                log = AccessLog.objects.create(locker=locker, customer=customer)
+                alert_msg = send_access_notification(customer, locker, log)
+                checked_in.append((customer.name, customer.phone_number or customer.email or 'SMS/Profile'))
 
             if checked_in:
-                names = ', '.join(checked_in)
-                messages.success(request, f"Entry processed for: {names} — Locker #{locker.locker_number}.")
+                names = ', '.join([c[0] for c in checked_in])
+                messages.success(request, f"Entry processed for: {names} (Locker #{locker.locker_number}). Security alert dispatched.")
             return redirect('scan_checkin', pk=locker.pk)
 
     # Build set of customer IDs who are currently active in this locker
@@ -330,8 +372,9 @@ def check_in(request):
             return redirect('locker_detail', pk=locker_id)
 
         try:
-            AccessLog.objects.create(locker=locker, customer=customer)
-            messages.success(request, f"✅ {customer.name} checked into Locker #{locker.locker_number}.")
+            log = AccessLog.objects.create(locker=locker, customer=customer)
+            alert_msg = send_access_notification(customer, locker, log)
+            messages.success(request, f"✅ {customer.name} checked into Locker #{locker.locker_number}. Security alert dispatched: \"{alert_msg}\"")
         except Exception as e:
             messages.error(request, f"Check-in failed: {e}")
         return redirect('locker_detail', pk=locker_id)
