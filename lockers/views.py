@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from .models import Locker, Customer, LockerUser, AccessLog
 from .forms import LockerForm, CustomerForm, LockerUserForm, ScanTokenForm
 
@@ -66,9 +67,14 @@ def locker_detail(request, pk):
 def locker_add(request):
     form = LockerForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        locker = form.save()
-        messages.success(request, f"Locker #{locker.locker_number} created successfully.")
-        return redirect('locker_detail', pk=locker.pk)
+        try:
+            locker = form.save()
+            messages.success(request, f"Locker #{locker.locker_number} created successfully.")
+            return redirect('locker_detail', pk=locker.pk)
+        except IntegrityError:
+            messages.error(request, "A locker with this number already exists. Please use a unique locker number.")
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred while creating the locker: {e}")
     return render(request, 'lockers/locker_form.html', {'form': form, 'title': 'Add New Locker'})
 
 
@@ -77,9 +83,14 @@ def locker_edit(request, pk):
     locker = get_object_or_404(Locker, pk=pk)
     form = LockerForm(request.POST or None, instance=locker)
     if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, f"Locker #{locker.locker_number} updated.")
-        return redirect('locker_detail', pk=locker.pk)
+        try:
+            form.save()
+            messages.success(request, f"Locker #{locker.locker_number} updated.")
+            return redirect('locker_detail', pk=locker.pk)
+        except IntegrityError:
+            messages.error(request, "A locker with this number already exists. Please use a unique locker number.")
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred while updating the locker: {e}")
     return render(request, 'lockers/locker_form.html', {'form': form, 'title': 'Edit Locker', 'locker': locker})
 
 
@@ -87,10 +98,14 @@ def locker_edit(request, pk):
 def locker_delete(request, pk):
     locker = get_object_or_404(Locker, pk=pk)
     if request.method == 'POST':
-        locker_number = locker.locker_number
-        locker.delete()
-        messages.success(request, f"Locker #{locker_number} deleted.")
-        return redirect('locker_list')
+        try:
+            locker_number = locker.locker_number
+            locker.delete()
+            messages.success(request, f"Locker #{locker_number} deleted.")
+            return redirect('locker_list')
+        except Exception as e:
+            messages.error(request, f"Could not delete locker: {e}")
+            return redirect('locker_detail', pk=pk)
     return render(request, 'lockers/confirm_delete.html', {'obj': locker, 'type': 'Locker'})
 
 
@@ -121,9 +136,14 @@ def customer_detail(request, pk):
 def customer_add(request):
     form = CustomerForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
-        customer = form.save()
-        messages.success(request, f"Customer '{customer.name}' added successfully.")
-        return redirect('customer_detail', pk=customer.pk)
+        try:
+            customer = form.save()
+            messages.success(request, f"Customer '{customer.name}' added successfully.")
+            return redirect('customer_detail', pk=customer.pk)
+        except IntegrityError:
+            messages.error(request, "A customer with this information already exists.")
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred while adding the customer: {e}")
     return render(request, 'lockers/customer_form.html', {'form': form, 'title': 'Add New Customer'})
 
 
@@ -132,9 +152,12 @@ def customer_edit(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
     form = CustomerForm(request.POST or None, request.FILES or None, instance=customer)
     if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, f"Customer '{customer.name}' updated.")
-        return redirect('customer_detail', pk=customer.pk)
+        try:
+            form.save()
+            messages.success(request, f"Customer '{customer.name}' updated.")
+            return redirect('customer_detail', pk=customer.pk)
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred while updating the customer: {e}")
     return render(request, 'lockers/customer_form.html', {'form': form, 'title': 'Edit Customer', 'customer': customer})
 
 
@@ -142,10 +165,14 @@ def customer_edit(request, pk):
 def customer_delete(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
     if request.method == 'POST':
-        name = customer.name
-        customer.delete()
-        messages.success(request, f"Customer '{name}' deleted.")
-        return redirect('customer_list')
+        try:
+            name = customer.name
+            customer.delete()
+            messages.success(request, f"Customer '{name}' deleted.")
+            return redirect('customer_list')
+        except Exception as e:
+            messages.error(request, f"Could not delete customer: {e}")
+            return redirect('customer_detail', pk=pk)
     return render(request, 'lockers/confirm_delete.html', {'obj': customer, 'type': 'Customer'})
 
 
@@ -166,6 +193,10 @@ def add_locker_user(request, pk):
             except ValidationError as e:
                 msg = e.message if hasattr(e, 'message') else ' '.join(e.messages)
                 messages.error(request, msg)
+            except IntegrityError:
+                messages.error(request, f"{customer.name} is already assigned to this locker.")
+            except Exception as e:
+                messages.error(request, f"Could not assign customer to locker: {e}")
         else:
             for error in form.errors.values():
                 messages.error(request, error.as_text())
@@ -177,9 +208,12 @@ def remove_locker_user(request, pk, customer_pk):
     locker = get_object_or_404(Locker, pk=pk)
     lu = get_object_or_404(LockerUser, locker=locker, customer_id=customer_pk)
     if request.method == 'POST':
-        customer_name = lu.customer.name
-        lu.delete()
-        messages.success(request, f"{customer_name} removed from Locker #{locker.locker_number}.")
+        try:
+            customer_name = lu.customer.name
+            lu.delete()
+            messages.success(request, f"{customer_name} removed from Locker #{locker.locker_number}.")
+        except Exception as e:
+            messages.error(request, f"Could not remove customer from locker: {e}")
     return redirect('locker_detail', pk=pk)
 
 
@@ -295,8 +329,11 @@ def check_in(request):
             messages.warning(request, f"Locker #{locker.locker_number} is already occupied by {existing.customer.name}.")
             return redirect('locker_detail', pk=locker_id)
 
-        AccessLog.objects.create(locker=locker, customer=customer)
-        messages.success(request, f"✅ {customer.name} checked into Locker #{locker.locker_number}.")
+        try:
+            AccessLog.objects.create(locker=locker, customer=customer)
+            messages.success(request, f"✅ {customer.name} checked into Locker #{locker.locker_number}.")
+        except Exception as e:
+            messages.error(request, f"Check-in failed: {e}")
         return redirect('locker_detail', pk=locker_id)
 
     return redirect('scan_token')
@@ -306,9 +343,12 @@ def check_in(request):
 def check_out(request, log_id):
     log = get_object_or_404(AccessLog, pk=log_id, check_out_time__isnull=True)
     if request.method == 'POST':
-        log.check_out_time = timezone.now()
-        log.save()
-        messages.success(request, f"✅ {log.customer.name} checked out from Locker #{log.locker.locker_number}.")
+        try:
+            log.check_out_time = timezone.now()
+            log.save()
+            messages.success(request, f"✅ {log.customer.name} checked out from Locker #{log.locker.locker_number}.")
+        except Exception as e:
+            messages.error(request, f"Check-out failed: {e}")
         return redirect('locker_detail', pk=log.locker.pk)
     return redirect('locker_detail', pk=log.locker.pk)
 
@@ -331,3 +371,15 @@ def access_log(request):
         logs = logs.filter(check_out_time__isnull=False)
 
     return render(request, 'lockers/access_log.html', {'logs': logs, 'query': query, 'status': status})
+
+
+# ─── Custom Error Handlers ────────────────────────────────────────────────────
+
+def error_404(request, exception=None):
+    """Custom 404 Not Found handler."""
+    return render(request, 'lockers/error_404.html', status=404)
+
+
+def error_500(request):
+    """Custom 500 Internal Server Error handler."""
+    return render(request, 'lockers/error_500.html', status=500)

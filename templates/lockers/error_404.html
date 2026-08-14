@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 Not Found | VaultBank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] } } }
+    }
+  </script>
+</head>
+<body class="bg-[#0F172A] text-[#F1F5F9] font-sans antialiased min-h-screen flex items-center justify-center p-6">
+  <div class="text-center max-w-md w-full">
+    <div class="w-24 h-24 rounded-3xl bg-[#EF4444]/10 border border-[#EF4444]/30 flex items-center justify-center text-5xl mx-auto mb-8 shadow-inner">
+      ??
+    </div>
+    <div class="text-8xl font-black text-[#EF4444]/30 leading-none mb-2">404</div>
+    <h1 class="text-2xl font-black text-[#F1F5F9] tracking-tight mb-3">Page Not Found</h1>
+    <p class="text-sm text-[#94A3B8] leading-relaxed mb-8">
+      The vault you are looking for does not exist or has been moved. Double-check the URL or return to the dashboard.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="/" class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-[#3B82F6]/25 transition-all">
+        Go to Dashboard
+      </a>
+      <a href="javascript:history.back()" class="bg-[#1E293B] hover:bg-[#334155] text-[#F1F5F9] px-6 py-3 rounded-xl font-bold text-sm border border-[#334155] transition-all">
+        Go Back
+      </a>
+    </div>
+    <div class="mt-12 text-xs text-[#334155] font-semibold tracking-widest uppercase">VaultBank Locker Enterprise</div>
+  </div>
+</body>
+</html>
