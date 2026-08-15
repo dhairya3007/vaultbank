@@ -116,8 +116,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # ─── Rock-solid Session & Auth Configuration ──────────────────────────────────
-# 1. Database-backed sessions
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# 1. Cookie-backed sessions (required for serverless/Vercel with SQLite)
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 # 2. Session expiration: 14 days
 SESSION_COOKIE_AGE = 1209600  # 14 days in seconds
