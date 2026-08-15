@@ -98,10 +98,10 @@
         </thead>
         <tbody>
           {% for log in logs %}
+          {% with formatted_in=log.check_in_time|date:"d M Y H:i" formatted_out=log.check_out_time|date:"d M Y H:i" %}
           <tr class="log-row-item"
-            x-show="matches('{{ log.customer.name|escapejs }}', '{{ log.locker.locker_number|escapejs }}', '{{ log.check_in_time|date:"
-            d M Y H:i"|escapejs }}', '{{ log.check_out_time|date:"d M Y H:i"|escapejs }}'
-            , '{% if log.check_out_time %}closed{% else %}active{% endif %}' )">
+            x-show="matches('{{ log.customer.name|escapejs }}', '{{ log.locker.locker_number|escapejs }}', '{{ formatted_in|escapejs }}', '{{ formatted_out|escapejs }}', '{% if log.check_out_time %}closed{% else %}active{% endif %}' )">
+          {% endwith %}
             <td class="text-xs text-slate-500 font-mono">{{ forloop.counter }}</td>
             <td>
               <div class="flex items-center gap-2.5">

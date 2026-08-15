@@ -101,10 +101,11 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# Reverse Proxy & HTTPS support for cloud deployments (Vercel, Render, Railway, AWS, etc.)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
-USE_X_FORWARDED_PORT = True
+# Reverse Proxy & HTTPS support for cloud deployments
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
+    USE_X_FORWARDED_PORT = True
 
 # CSRF Trusted Origins for development and production domains
 CSRF_TRUSTED_ORIGINS = [
@@ -130,7 +131,7 @@ SESSION_COOKIE_NAME = 'vaultbank_sessionid'
 CSRF_COOKIE_NAME = 'vaultbank_csrftoken'
 
 # 5. Security flags: True in production (HTTPS), False in local development (HTTP)
-IS_SECURE_ENV = not DEBUG or os.environ.get('DJANGO_SECURE_COOKIE', 'false').lower() == 'true'
+IS_SECURE_ENV = False if DEBUG else os.environ.get('DJANGO_SECURE_COOKIE', 'true').lower() == 'true'
 SESSION_COOKIE_SECURE = IS_SECURE_ENV
 CSRF_COOKIE_SECURE = IS_SECURE_ENV
 
