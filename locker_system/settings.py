@@ -102,7 +102,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 # Reverse Proxy & HTTPS support for cloud deployments
-if not DEBUG:
+if not DEBUG or os.environ.get('VERCEL'):
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
     USE_X_FORWARDED_PORT = True
@@ -131,7 +131,7 @@ SESSION_COOKIE_NAME = 'vaultbank_sessionid'
 CSRF_COOKIE_NAME = 'vaultbank_csrftoken'
 
 # 5. Security flags: True in production (HTTPS), False in local development (HTTP)
-IS_SECURE_ENV = False if DEBUG else os.environ.get('DJANGO_SECURE_COOKIE', 'true').lower() == 'true'
+IS_SECURE_ENV = True if os.environ.get('VERCEL') else (False if DEBUG else os.environ.get('DJANGO_SECURE_COOKIE', 'true').lower() == 'true')
 SESSION_COOKIE_SECURE = IS_SECURE_ENV
 CSRF_COOKIE_SECURE = IS_SECURE_ENV
 
