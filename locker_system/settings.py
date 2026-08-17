@@ -58,21 +58,10 @@ import shutil
 
 DB_FILE = BASE_DIR / 'db.sqlite3'
 
-if os.environ.get('VERCEL') or not os.access(BASE_DIR, os.W_OK):
-    TMP_DB = Path('/tmp') / 'db.sqlite3'
-    if not TMP_DB.exists() and DB_FILE.exists():
-        try:
-            shutil.copy(DB_FILE, TMP_DB)
-        except Exception:
-            pass
-    DB_TARGET = TMP_DB if TMP_DB.exists() else DB_FILE
-else:
-    DB_TARGET = DB_FILE
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_TARGET,
+        'NAME': DB_FILE,
     }
 }
 
@@ -102,7 +91,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 # Reverse Proxy & HTTPS support for cloud deployments
-if not DEBUG or os.environ.get('VERCEL'):
+if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
     USE_X_FORWARDED_PORT = True
@@ -116,32 +105,26 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # ─── Rock-solid Session & Auth Configuration ──────────────────────────────────
-# 1. Cookie-backed sessions (required for serverless/Vercel with SQLite)
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
-
-# 2. Session expiration: 14 days
+# 1. Session expiration: 14 days
 SESSION_COOKIE_AGE = 1209600  # 14 days in seconds
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist session across browser restarts
 
-# 3. Disable saving on every request to prevent DB write race conditions and session key collisions
-SESSION_SAVE_EVERY_REQUEST = False
-
-# 4. Custom cookie names to prevent namespace collisions
+# 2. Custom cookie names to prevent namespace collisions
 SESSION_COOKIE_NAME = 'vaultbank_sessionid'
 CSRF_COOKIE_NAME = 'vaultbank_csrftoken'
 
-# 5. Security flags: True in production (HTTPS), False in local development (HTTP)
-IS_SECURE_ENV = True if os.environ.get('VERCEL') else (False if DEBUG else os.environ.get('DJANGO_SECURE_COOKIE', 'true').lower() == 'true')
+# 3. Security flags: True in production (HTTPS), False in local development (HTTP)
+IS_SECURE_ENV = False if DEBUG else os.environ.get('DJANGO_SECURE_COOKIE', 'true').lower() == 'true'
 SESSION_COOKIE_SECURE = IS_SECURE_ENV
 CSRF_COOKIE_SECURE = IS_SECURE_ENV
 
-# 6. HTTPOnly and SameSite policy
+# 4. HTTPOnly and SameSite policy
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_DOMAIN = None
 
-# Store flash messages in session to avoid 4KB cookie overflow and session drops
+# Store flash messages in session
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
