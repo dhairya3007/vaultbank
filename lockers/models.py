@@ -93,6 +93,12 @@ class Customer(models.Model):
         # Use related_name='locker_users' defined on LockerUser.customer FK
         return Locker.objects.filter(locker_users__customer=self)
 
+    @property
+    def id_proof_file_exists(self):
+        if not self.id_proof_file:
+            return False
+        return self.id_proof_file.storage.exists(self.id_proof_file.name)
+
     class Meta:
         ordering = ['name']
 
