@@ -1,0 +1,169 @@
+{% extends 'lockers/base.html' %}
+{% load static %}
+
+{% block page_title %}API Explorer{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6" x-data="apiExplorer()">
+
+  <!-- Header -->
+  <div>
+    <h2 class="text-2xl font-bold text-white tracking-tight">API Data Explorer</h2>
+    <p class="text-sm text-slate-400 mt-1">Connect to an external API endpoint to view and search JSON data in a tabular format.</p>
+  </div>
+
+  <div class="bg-surface p-6 rounded-2xl border border-surface-border shadow-xl space-y-6">
+    
+    <!-- Input Section -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <div class="flex-1 space-y-1.5">
+        <label class="block text-sm font-medium text-slate-300">API Endpoint URL</label>
+        <input type="url" x-model="endpoint" @keydown.enter="fetchData" placeholder="https://jsonplaceholder.typicode.com/users"
+               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+      </div>
+      <div class="flex items-end">
+        <button @click="fetchData" :disabled="loading || !endpoint"
+                class="h-[42px] px-6 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/20 transition-all focus:ring-4 focus:ring-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span x-show="!loading">Fetch Data</span>
+          <span x-show="loading" class="dot-pulse">Fetching...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div x-show="error" style="display: none;" class="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+      <span x-text="error"></span>
+    </div>
+
+    <!-- Search Section -->
+    <div x-show="data.length > 0" style="display: none;" class="pt-6 border-t border-surface-border">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="relative flex-1 max-w-sm">
+          <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" x-model="searchQuery" placeholder="Search across all columns..."
+                 class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+        </div>
+        <div class="text-sm text-slate-400">
+          Showing <span x-text="filteredData.length" class="text-white font-medium"></span> of <span x-text="data.length" class="text-white font-medium"></span> records.
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-700 bg-slate-900/50">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+          <thead class="bg-slate-800 text-slate-300 font-medium">
+            <tr>
+              <template x-for="col in columns" :key="col">
+                <th scope="col" class="px-6 py-3 uppercase tracking-wider text-xs" x-text="col"></th>
+              </template>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/50">
+            <template x-for="(row, index) in filteredData" :key="index">
+              <tr class="hover:bg-slate-800/50 transition-colors">
+                <template x-for="col in columns" :key="col">
+                  <td class="px-6 py-4 text-slate-300">
+                    <span x-text="formatValue(row[col])" class="truncate max-w-xs block"></span>
+                  </td>
+                </template>
+              </tr>
+            </template>
+            <tr x-show="filteredData.length === 0">
+              <td :colspan="columns.length" class="px-6 py-8 text-center text-slate-500">
+                No matching records found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function apiExplorer() {
+    return {
+      endpoint: 'https://jsonplaceholder.typicode.com/users',
+      loading: false,
+      error: null,
+      data: [],
+      columns: [],
+      searchQuery: '',
+
+      async fetchData() {
+        if (!this.endpoint) return;
+        
+        this.loading = true;
+        this.error = null;
+        this.data = [];
+        this.columns = [];
+        this.searchQuery = '';
+
+        try {
+          const formData = new FormData();
+          formData.append('endpoint', this.endpoint);
+          formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+          const response = await fetch('{% url "api_explorer" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
+
+          const result = await response.json();
+          
+          if (!response.ok || !result.success) {
+            throw new Error(result.error || 'Failed to fetch data');
+          }
+
+          if (Array.isArray(result.data) && result.data.length > 0) {
+            this.data = result.data;
+            // Extract all unique keys across all objects to form columns
+            const keys = new Set();
+            this.data.forEach(item => {
+              if (typeof item === 'object' && item !== null) {
+                Object.keys(item).forEach(k => keys.add(k));
+              }
+            });
+            this.columns = Array.from(keys);
+          } else {
+            this.error = 'API returned empty data or an unsupported format.';
+          }
+          
+        } catch (e) {
+          this.error = e.message;
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      get filteredData() {
+        if (this.searchQuery.trim() === '') {
+          return this.data;
+        }
+        
+        const q = this.searchQuery.toLowerCase();
+        return this.data.filter(row => {
+          return this.columns.some(col => {
+            const val = this.formatValue(row[col]);
+            return val && val.toLowerCase().includes(q);
+          });
+        });
+      },
+
+      formatValue(val) {
+        if (val === null || val === undefined) return '';
+        if (typeof val === 'object') return JSON.stringify(val);
+        return String(val);
+      }
+    }
+  }
+</script>
+{% endblock %}

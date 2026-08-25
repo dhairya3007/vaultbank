@@ -1,6 +1,66 @@
+import os
 import secrets
 from django.db import models
 from django.core.exceptions import ValidationError
+
+
+# ─── File upload validation ───────────────────────────────────────────────────
+
+# Allowed extensions and their corresponding magic-byte signatures
+_ALLOWED_UPLOAD_EXTENSIONS = {'.pdf', '.jpg', '.jpeg', '.png'}
+
+# First-bytes signatures for each allowed type (magic bytes)
+_MAGIC_BYTES = {
+    b'%PDF': '.pdf',
+    b'\xff\xd8\xff': '.jpg',  # JPEG
+    b'\x89PNG': '.png',
+}
+
+
+def validate_id_proof_file(file):
+    """
+    Validator for customer ID proof uploads.
+    Checks:
+      1. Extension is in the allowed whitelist (.pdf, .jpg, .jpeg, .png)
+      2. File size does not exceed 5 MB
+      3. File magic bytes match the declared extension (prevents MIME-type spoofing)
+    """
+    # 1. Extension check
+    ext = os.path.splitext(file.name)[1].lower()
+    if ext not in _ALLOWED_UPLOAD_EXTENSIONS:
+        raise ValidationError(
+            f"Unsupported file type '{ext}'. "
+            f"Allowed formats: PDF, JPG, PNG."
+        )
+
+    # 2. Size check
+    max_bytes = 5 * 1024 * 1024  # 5 MB
+    if hasattr(file, 'size') and file.size > max_bytes:
+        raise ValidationError("File is too large. Maximum allowed size is 5 MB.")
+
+    # 3. Magic-byte check (read first 8 bytes, then rewind)
+    try:
+        header = file.read(8)
+        file.seek(0)
+    except Exception:
+        raise ValidationError("Could not read the uploaded file. Please try again.")
+
+    matched = False
+    for magic, mime_ext in _MAGIC_BYTES.items():
+        if header.startswith(magic):
+            # For .jpeg we also accept .jpg extension
+            if mime_ext == '.jpg' and ext in ('.jpg', '.jpeg'):
+                matched = True
+                break
+            if mime_ext == ext:
+                matched = True
+                break
+
+    if not matched:
+        raise ValidationError(
+            "The file content does not match its extension. "
+            "Please upload a genuine PDF, JPG, or PNG file."
+        )
 
 
 def generate_locker_token():
@@ -84,7 +144,11 @@ class Customer(models.Model):
     phone_number = models.CharField(max_length=20, blank=True, null=True, help_text="Phone number for SMS/WhatsApp alerts")
     email = models.EmailField(blank=True, null=True, help_text="Email address for access notifications")
     id_proof_type = models.CharField(max_length=50, choices=ID_PROOF_CHOICES)
-    id_proof_file = models.FileField(upload_to='id_proofs/')
+    id_proof_file = models.FileField(
+        upload_to='id_proofs/',
+        validators=[validate_id_proof_file],
+        help_text="Accepted formats: PDF, JPG, PNG. Max 5 MB.",
+    )
 
     def __str__(self):
         return self.name

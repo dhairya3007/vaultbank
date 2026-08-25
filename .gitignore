@@ -19,3 +19,13 @@ staticfiles/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Environment secrets — NEVER commit this
+.env
+.env.*
+
+# Local database
+db.sqlite3
+
+# Media uploads (user files)
+media/

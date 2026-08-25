@@ -2,9 +2,8 @@
 URL configuration for locker_system project.
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, re_path, include
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect
 
@@ -29,7 +28,21 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='lockers/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', include('lockers.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+# ─── Protected media serving ──────────────────────────────────────────────────
+# /media/ files (customer ID proofs) are gated behind @login_required.
+# We use a catch-all re_path instead of static() so the auth check applies
+# in all environments, including DEBUG=True.
+if settings.MEDIA_URL:
+    from lockers.views import serve_protected_media
+    urlpatterns += [
+        re_path(
+            r'^media/(?P<path>.*)$',
+            serve_protected_media,
+            name='serve_protected_media',
+        ),
+    ]
 
 # Custom error handlers
 handler404 = 'lockers.views.error_404'

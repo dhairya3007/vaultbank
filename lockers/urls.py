@@ -29,4 +29,7 @@ urlpatterns = [
 
     # Access Logs
     path('logs/', views.access_log, name='access_log'),
+
+    # API Explorer
+    path('api-explorer/', views.api_explorer, name='api_explorer'),
 ]

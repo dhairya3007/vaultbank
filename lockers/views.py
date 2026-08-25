@@ -1,16 +1,105 @@
 import logging
+import ipaddress
+import socket
+import urllib.request
+import urllib.error
+import json
+import os
+from urllib.parse import urlparse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.core.mail import send_mail
+from django.core.cache import cache
+from django.http import JsonResponse, FileResponse, Http404
+from django.conf import settings
 from .models import Locker, Customer, LockerUser, AccessLog
 from .forms import LockerForm, CustomerForm, LockerUserForm, ScanTokenForm
 
 logger = logging.getLogger(__name__)
+
+
+# ─── Security helpers ─────────────────────────────────────────────────────────
+
+# Private / link-local / loopback networks — never allowed as API targets (SSRF)
+_BLOCKED_NETWORKS = [
+    ipaddress.ip_network('0.0.0.0/8'),
+    ipaddress.ip_network('10.0.0.0/8'),
+    ipaddress.ip_network('100.64.0.0/10'),
+    ipaddress.ip_network('127.0.0.0/8'),
+    ipaddress.ip_network('169.254.0.0/16'),   # AWS/Azure metadata endpoint
+    ipaddress.ip_network('172.16.0.0/12'),
+    ipaddress.ip_network('192.168.0.0/16'),
+    ipaddress.ip_network('198.18.0.0/15'),
+    ipaddress.ip_network('198.51.100.0/24'),
+    ipaddress.ip_network('203.0.113.0/24'),
+    ipaddress.ip_network('224.0.0.0/4'),
+    ipaddress.ip_network('240.0.0.0/4'),
+    ipaddress.ip_network('::1/128'),
+    ipaddress.ip_network('fc00::/7'),
+    ipaddress.ip_network('fe80::/10'),
+]
+
+
+def _validate_ssrf(url: str) -> None:
+    """
+    Validate a user-supplied URL against SSRF attacks.
+    Raises ValueError with a safe, generic message on any violation.
+    Only http:// and https:// are allowed schemes.
+    All resolved IP addresses are checked against _BLOCKED_NETWORKS.
+    """
+    parsed = urlparse(url)
+
+    # 1. Scheme whitelist
+    if parsed.scheme not in ('http', 'https'):
+        raise ValueError("Only http:// and https:// endpoints are allowed.")
+
+    hostname = parsed.hostname
+    if not hostname:
+        raise ValueError("Invalid URL: no hostname provided.")
+
+    # 2. Block numeric IP literals immediately (before DNS)
+    try:
+        literal_ip = ipaddress.ip_address(hostname)
+        for net in _BLOCKED_NETWORKS:
+            if literal_ip in net:
+                raise ValueError("Access to private or internal addresses is not permitted.")
+    except ValueError as exc:
+        if 'not permitted' in str(exc):
+            raise
+        # hostname is not an IP literal — resolve it below
+
+    # 3. Resolve hostname → IPs and check each resolved address
+    try:
+        addr_infos = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        raise ValueError("Could not resolve the hostname. Please check the URL.")
+
+    for _, _, _, _, sockaddr in addr_infos:
+        try:
+            ip = ipaddress.ip_address(sockaddr[0])
+        except ValueError:
+            continue
+        for net in _BLOCKED_NETWORKS:
+            if ip in net:
+                raise ValueError("Access to private or internal addresses is not permitted.")
+
+
+def _check_rate_limit(user_id: int, limit: int = 15, window: int = 60) -> bool:
+    """
+    Simple sliding-window rate limiter using Django's in-process cache.
+    Returns True if the request is allowed, False if the user is over limit.
+    """
+    key = f'rl:api_explorer:{user_id}'
+    count = cache.get(key, 0)
+    if count >= limit:
+        return False
+    cache.set(key, count + 1, timeout=window)
+    return True
 
 
 def send_access_notification(customer, locker, log):
@@ -414,6 +503,121 @@ def access_log(request):
         logs = logs.filter(check_out_time__isnull=False)
 
     return render(request, 'lockers/access_log.html', {'logs': logs, 'query': query, 'status': status})
+
+# ─── API Explorer (staff-only, SSRF-hardened) ─────────────────────────────────
+
+@user_passes_test(lambda u: u.is_active and u.is_staff, login_url='/login/')
+def api_explorer(request):
+    """
+    Proxies GET requests to an external bank API and returns the JSON
+    response as a table-renderable payload.
+
+    Security controls:
+      - Staff-only (@user_passes_test is_staff)
+      - SSRF protection: blocks private/internal IP ranges & non-http(s) schemes
+      - Rate limited: 15 requests per user per 60 seconds
+      - Response size capped at 1 MB
+      - Internal exception details are logged, never returned to the client
+    """
+    if request.method == 'POST':
+        # --- Rate limiting ---
+        if not _check_rate_limit(request.user.pk):
+            return JsonResponse(
+                {'error': 'Too many requests. Please wait a moment and try again.'},
+                status=429
+            )
+
+        endpoint = request.POST.get('endpoint', '').strip()
+        if not endpoint:
+            return JsonResponse({'error': 'Endpoint URL is required.'}, status=400)
+
+        # --- SSRF validation ---
+        try:
+            _validate_ssrf(endpoint)
+        except ValueError as exc:
+            logger.warning(
+                'API Explorer SSRF attempt blocked | user=%s url=%s reason=%s',
+                request.user.username, endpoint, exc
+            )
+            return JsonResponse({'error': str(exc)}, status=400)
+
+        # --- Fetch with size cap ---
+        try:
+            req = urllib.request.Request(
+                endpoint,
+                headers={'Accept': 'application/json', 'User-Agent': 'VaultBank-Explorer/1.0'},
+            )
+            with urllib.request.urlopen(req, timeout=8) as resp:  # noqa: S310
+                # Hard cap: read at most 1 MB; discard the rest
+                raw_data = resp.read(1 * 1024 * 1024).decode('utf-8', errors='replace')
+
+            data = json.loads(raw_data)
+
+        except urllib.error.HTTPError as exc:
+            logger.info('API Explorer upstream HTTP error | user=%s url=%s status=%s',
+                        request.user.username, endpoint, exc.code)
+            return JsonResponse(
+                {'error': f'The remote API returned an error (HTTP {exc.code}).'},
+                status=400
+            )
+        except urllib.error.URLError as exc:
+            logger.info('API Explorer URL error | user=%s url=%s reason=%s',
+                        request.user.username, endpoint, exc.reason)
+            return JsonResponse(
+                {'error': 'Could not reach the endpoint. Check the URL and try again.'},
+                status=400
+            )
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {'error': 'The remote API did not return valid JSON.'},
+                status=400
+            )
+        except Exception as exc:  # pragma: no cover
+            logger.exception('API Explorer unexpected error | user=%s url=%s', request.user.username, endpoint)
+            return JsonResponse(
+                {'error': 'An unexpected error occurred. Please try again.'},
+                status=500
+            )
+
+        # --- Normalise response to a list ---
+        if not isinstance(data, list):
+            if isinstance(data, dict):
+                # Common pattern: { "data": [...], "results": [...] }
+                for val in data.values():
+                    if isinstance(val, list):
+                        data = val
+                        break
+                else:
+                    data = [data]
+            else:
+                data = [data]
+
+        logger.info('API Explorer fetch | user=%s url=%s records=%d',
+                    request.user.username, endpoint, len(data))
+        return JsonResponse({'success': True, 'data': data})
+
+    return render(request, 'lockers/api_explorer.html')
+
+
+# ─── Protected Media Serving ──────────────────────────────────────────────────
+
+@login_required
+def serve_protected_media(request, path):
+    """
+    Stream media files (customer ID proofs etc.) only to authenticated users.
+    Prevents unauthenticated access to sensitive PII documents.
+
+    Path traversal is mitigated by asserting the resolved path stays within
+    MEDIA_ROOT before opening the file.
+    """
+    media_root = os.path.abspath(str(settings.MEDIA_ROOT))
+    # Resolve the full path and guard against traversal (e.g. '../../etc/passwd')
+    requested = os.path.abspath(os.path.join(media_root, path))
+    if not requested.startswith(media_root + os.sep) and requested != media_root:
+        raise Http404
+    if not os.path.isfile(requested):
+        raise Http404
+    return FileResponse(open(requested, 'rb'))  # noqa: WPS515
 
 
 # ─── Custom Error Handlers ────────────────────────────────────────────────────
