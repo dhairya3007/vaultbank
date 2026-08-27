@@ -210,3 +210,6 @@ MIT License – For educational/internal banking MVP use.
 
 
 in this u can see the above nav bar how it looks also when i open sidebar still i can touch bihide that i can scroll it thats the problem 
+
+# This will undo the latest pull and put your code exactly back to how it was before
+git reset --hard HEAD@{1}
