@@ -1,32 +1,46 @@
-﻿{% extends 'lockers/base.html' %}
+{% extends 'lockers/base.html' %}
 {% block title %}{{ title }}{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
 {% block content %}
-<div class="max-w-xl mx-auto">
-  <div class="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden shadow-xl">
-    <div class="flex items-center gap-3 px-6 py-5 border-b border-[#334155] bg-[#0F172A]/40">
-      <div class="w-9 h-9 rounded-xl bg-blue-600/15 border border-blue-500/30 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+<div style="max-width: 36rem; margin: 0 auto;">
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); background: var(--bg-surface); display: flex; align-items: center; gap: 0.75rem;">
+      <div style="width: 2.25rem; height: 2.25rem; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); display: flex; align-items: center; justify-content: center; color: var(--accent-blue);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
       </div>
       <div>
-        <h2 class="text-base font-bold text-white">{{ title }}</h2>
-        <p class="text-xs text-slate-400">Enter customer identity details</p>
+        <h2 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">{{ title }}</h2>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.125rem 0 0;">Enter customer identity details</p>
       </div>
     </div>
-    <form method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
+    <form method="POST" enctype="multipart/form-data" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
       {% csrf_token %}
       {% for field in form %}
-      <div class="space-y-1.5">
-        <label for="{{ field.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">{{ field.label }}</label>
-        <div>{{ field }}</div>
-        {% if field.errors %}<p class="text-xs text-red-400 mt-1">{{ field.errors.as_text }}</p>{% endif %}
+      <div class="form-group" style="margin: 0;">
+        <label for="{{ field.id_for_label }}" class="form-label" style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted);">
+          {{ field.label }}
+        </label>
+        <div class="field-wrapper" style="margin-top: 0.5rem;">
+          {{ field }}
+        </div>
+        {% if field.errors %}<p style="font-size: 0.75rem; color: var(--accent-red); margin-top: 0.25rem;">{{ field.errors.as_text }}</p>{% endif %}
       </div>
       {% endfor %}
-      <div class="flex gap-3 pt-2 border-t border-[#334155]">
-        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors">Save Customer</button>
-        <a href="javascript:history.back()" class="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-[#334155] transition-colors">Cancel</a>
+      
+      <div style="display: flex; gap: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color); margin-top: 0.5rem;">
+        <button type="submit" class="btn btn-primary" style="flex: 1; padding: 0.625rem; font-size: 0.875rem; justify-content: center;">Save Customer</button>
+        <a href="javascript:history.back()" class="btn btn-secondary" style="padding: 0.625rem 1.25rem; font-size: 0.875rem;">Cancel</a>
       </div>
     </form>
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".field-wrapper input, .field-wrapper select, .field-wrapper textarea").forEach(el => {
+      if (el.type !== 'checkbox' && el.type !== 'radio') {
+        el.classList.add("form-input");
+      }
+    });
+  });
+</script>
 {% endblock %}

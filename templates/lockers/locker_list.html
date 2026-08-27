@@ -3,7 +3,7 @@
 {% block page_title %}Lockers{% endblock %}
 
 {% block content %}
-<div class="space-y-5" x-data="{
+<div style="display: flex; flex-direction: column; gap: 1.5rem;" x-data="{
        search: '{{ query|escapejs }}',
        statusFilter: '{{ request.GET.lease|default:"all"|escapejs }}',
        get totalCards() {
@@ -28,18 +28,17 @@
      }">
 
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
     <div>
-      <h2 class="text-xl font-bold text-white">All Lockers &amp; Lease Portfolios</h2>
-      <p class="text-sm text-slate-400 mt-0.5">
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">All Lockers &amp; Lease Portfolios</h2>
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">
         <span x-text="search || statusFilter !== 'all' ? `Showing ${visibleCards} of ${totalCards} lockers` : '{{ lockers|length }} locker{{ lockers|length|pluralize }} registered'">
           {{ lockers|length }} locker{{ lockers|length|pluralize }} registered
         </span>
       </p>
     </div>
-    <a href="{% url 'locker_add' %}"
-      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 transition-colors shrink-0">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <a href="{% url 'locker_add' %}" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       Add Locker
@@ -47,54 +46,48 @@
   </div>
 
   <!-- Advanced Real-time Live Search & Filter Bar -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-4 space-y-3">
-    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+  <div class="card" style="padding: 1rem;">
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: stretch; justify-content: space-between;">
 
       <!-- Instant Search Input -->
-      <div class="relative flex-1">
-        <svg xmlns="http://www.w3.org/2000/svg"
-          class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none"
-          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      <div style="position: relative; flex: 1; min-width: 250px;">
+        <svg xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
         </svg>
-        <input type="text" x-model="search" placeholder="Instant search by locker number or token…"
-          class="vb-input vb-search-input !pl-10 !pr-10" autofocus />
+        <input type="text" x-model="search" placeholder="Instant search by locker number or token…" class="form-input" style="padding-left: 2.5rem; padding-right: 2.5rem;" autofocus />
         <!-- Clear button -->
-        <button type="button" x-show="search.length > 0" @click="search = ''"
-          class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded-md transition-colors"
-          title="Clear search" x-cloak>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <button type="button" x-show="search.length > 0" @click="search = ''" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); padding: 0.25rem;" title="Clear search" x-cloak>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
       <!-- Quick Status & Lease Filter Pills -->
-      <div class="flex p-1 bg-[#0F172A] border border-[#334155] rounded-lg gap-1 overflow-x-auto no-scrollbar shrink-0">
+      <div style="display: flex; flex-wrap: wrap; background: var(--bg-app); padding: 0.375rem; border-radius: var(--radius-md); gap: 0.375rem; align-items: center; border: 1px solid var(--border-color);">
         <button type="button" @click="statusFilter = 'all'"
-          :class="statusFilter === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
+          :style="statusFilter === 'all' ? 'background: var(--bg-surface); color: var(--text-main); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
+          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
           All
         </button>
         <button type="button" @click="statusFilter = 'active'"
-          :class="statusFilter === 'active' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
+          :style="statusFilter === 'active' ? 'background: var(--bg-surface); color: var(--accent-primary); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
+          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
           Active
         </button>
         <button type="button" @click="statusFilter = 'expiring_soon'"
-          :class="statusFilter === 'expiring_soon' ? 'bg-amber-600 text-white shadow-sm' : 'text-amber-400 hover:text-amber-300'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
+          :style="statusFilter === 'expiring_soon' ? 'background: var(--bg-surface); color: var(--accent-primary); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
+          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
           Expiring Soon
         </button>
         <button type="button" @click="statusFilter = 'overdue'"
-          :class="statusFilter === 'overdue' ? 'bg-red-600 text-white shadow-sm' : 'text-red-400 hover:text-red-300'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
+          :style="statusFilter === 'overdue' ? 'background: var(--bg-surface); color: var(--accent-red); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
+          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
           Overdue
         </button>
         <button type="button" @click="statusFilter = 'vacant'"
-          :class="statusFilter === 'vacant' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          class="px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap shrink-0 transition-all">
+          :style="statusFilter === 'vacant' ? 'background: var(--bg-surface); color: var(--accent-blue); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
+          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
           Available Slot
         </button>
       </div>
@@ -104,104 +97,100 @@
 
   {% if lockers %}
   <!-- Locker Card Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
     {% for locker in lockers %}
-    <div class="locker-card-item card-hover bg-[#1E293B] border border-[#334155] rounded-xl p-5 flex flex-col gap-4"
-      x-show="matches('{{ locker.locker_number|escapejs }}', '{{ locker.token|escapejs }}', '{% if locker.is_active %}active{% else %}inactive{% endif %}', '{% if locker.customer_count < 3 %}true{% else %}false{% endif %}', '{{ locker.lease_status }}')"
-      x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95"
-      x-transition:enter-end="opacity-100 scale-100">
+    <div class="locker-card-item card" style="display: flex; flex-direction: column; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s;"
+      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)';"
+      onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-card)';"
+      x-show="matches('{{ locker.locker_number|escapejs }}', '{{ locker.token|escapejs }}', '{% if locker.is_active %}active{% else %}inactive{% endif %}', '{% if locker.customer_count < 3 %}true{% else %}false{% endif %}', '{{ locker.lease_status }}')">
 
       <!-- Top row: Status & Capacity -->
-      <div class="flex items-center justify-between">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
         {% if locker.lease_status == 'overdue' %}
-        <span class="badge-red"><span class="dot-pulse"></span> Overdue</span>
+        <span class="badge badge-red">Overdue</span>
         {% elif locker.lease_status == 'expiring_soon' %}
-        <span class="badge-amber"><span class="dot-pulse"></span> Expiring Soon</span>
+        <span class="badge badge-amber">Expiring Soon</span>
         {% elif locker.is_active %}
-        <span class="badge-green"><span class="dot-pulse"></span> Active</span>
+        <span class="badge badge-green">Active</span>
         {% else %}
-        <span class="badge-slate">Inactive</span>
+        <span class="badge" style="background: var(--bg-app); color: var(--text-muted);">Inactive</span>
         {% endif %}
 
-        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg border {% if locker.customer_count == 3 %}bg-amber-500/10 border-amber-500/30 text-amber-400{% else %}bg-[#0F172A] border-[#334155] text-slate-400{% endif %}">
+        <span class="{% if locker.customer_count == 3 %}text-red{% else %}text-muted{% endif %}" style="font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
           {{ locker.customer_count }}/3 slots
         </span>
       </div>
 
       <!-- Icon & number -->
-      <div class="flex flex-col items-center gap-2 py-1">
-        <div class="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center shadow-inner">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.5rem 0;">
+        <div style="width: 3rem; height: 3rem; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-blue);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
           </svg>
         </div>
-        <span class="text-2xl font-bold text-white tracking-tight">#{{ locker.locker_number }}</span>
-        <span class="text-xs text-slate-400 font-mono select-all bg-[#0F172A] px-2 py-0.5 rounded border border-[#334155]/60">{{ locker.token|truncatechars:14 }}</span>
+        <span style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">#{{ locker.locker_number }}</span>
+        <span style="font-size: 0.75rem; font-family: monospace; user-select: all; background: var(--bg-app); padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); color: var(--text-muted);">{{ locker.token|truncatechars:14 }}</span>
       </div>
 
       <!-- Lease & Rent Info -->
-      <div class="p-2.5 rounded-lg bg-[#0F172A] border border-[#334155]/70 flex items-center justify-between text-xs">
+      <div style="padding: 0.75rem; border-radius: var(--radius-md); background: var(--bg-app); border: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 0.75rem;">
         <div>
-          <span class="text-slate-400 font-medium">Rent:</span>
-          <strong class="text-white font-mono ml-1">${{ locker.annual_fee|floatformat:0 }}/yr</strong>
+          <span style="color: var(--text-muted); font-weight: 500;">Rent:</span>
+          <strong style="color: var(--text-main); font-family: monospace; margin-left: 0.25rem;">${{ locker.annual_fee|floatformat:0 }}/yr</strong>
         </div>
-        <div class="text-right">
+        <div style="text-align: right;">
           {% if locker.lease_end_date %}
             {% if locker.lease_status == 'overdue' %}
-            <span class="text-red-400 font-semibold font-mono">Expired {{ locker.lease_end_date|date:"d M" }}</span>
+            <span style="color: var(--accent-red); font-weight: 600; font-family: monospace;">Expired {{ locker.lease_end_date|date:"d M" }}</span>
             {% elif locker.lease_status == 'expiring_soon' %}
-            <span class="text-amber-400 font-semibold font-mono">{{ locker.days_until_expiration }}d left</span>
+            <span style="color: var(--accent-primary); font-weight: 600; font-family: monospace;">{{ locker.days_until_expiration }}d left</span>
             {% else %}
-            <span class="text-slate-400 font-mono">End: {{ locker.lease_end_date|date:"M Y" }}</span>
+            <span style="color: var(--text-muted); font-family: monospace;">End: {{ locker.lease_end_date|date:"M Y" }}</span>
             {% endif %}
           {% else %}
-          <span class="text-slate-500 italic">No lease date</span>
+          <span style="color: var(--text-light); font-style: italic;">No lease date</span>
           {% endif %}
         </div>
       </div>
 
       <!-- Capacity Progress bar -->
       <div>
-        <div class="flex justify-between text-[11px] font-semibold text-slate-400 mb-1">
+        <div style="display: flex; justify-content: space-between; font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.25rem;">
           <span>Capacity</span>
           <span>{{ locker.customer_count }}/3 assigned</span>
         </div>
-        <div class="w-full bg-[#0F172A] rounded-full h-1.5 border border-[#334155] overflow-hidden">
+        <div style="width: 100%; background: var(--bg-app); border-radius: 9999px; height: 6px; border: 1px solid var(--border-color); overflow: hidden;">
           {% if locker.customer_count == 3 %}
-          <div class="h-1.5 rounded-full bg-amber-500 w-full transition-all"></div>
+          <div style="height: 100%; background: var(--accent-red); width: 100%;"></div>
           {% elif locker.customer_count == 2 %}
-          <div class="h-1.5 rounded-full bg-blue-500 w-2/3 transition-all"></div>
+          <div style="height: 100%; background: var(--accent-blue); width: 66.66%;"></div>
           {% elif locker.customer_count == 1 %}
-          <div class="h-1.5 rounded-full bg-blue-500 w-1/3 transition-all"></div>
+          <div style="height: 100%; background: var(--accent-blue); width: 33.33%;"></div>
           {% else %}
-          <div class="h-1.5 rounded-full bg-slate-700 w-0 transition-all"></div>
+          <div style="height: 100%; background: var(--text-light); width: 0%;"></div>
           {% endif %}
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[#334155]">
-        <a href="{% url 'locker_detail' locker.pk %}"
-          class="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-[#0F172A] hover:bg-blue-600 text-slate-300 hover:text-white text-xs font-medium border border-[#334155] hover:border-transparent transition-all shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+        <a href="{% url 'locker_detail' locker.pk %}" class="btn btn-secondary" style="flex-direction: column; padding: 0.5rem; font-size: 0.75rem; gap: 0.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
           </svg>
           View
         </a>
         <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=400x400&bgcolor=ffffff&color=000000&margin=20"
-          target="_blank"
-          class="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-[#0F172A] hover:bg-blue-600 text-slate-300 hover:text-white text-xs font-medium border border-[#334155] hover:border-transparent transition-all shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+          target="_blank" class="btn btn-secondary" style="flex-direction: column; padding: 0.5rem; font-size: 0.75rem; gap: 0.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
           </svg>
           QR
         </a>
-        <a href="{% url 'locker_edit' locker.pk %}"
-          class="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-[#0F172A] hover:bg-blue-600 text-slate-300 hover:text-white text-xs font-medium border border-[#334155] hover:border-transparent transition-all shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <a href="{% url 'locker_edit' locker.pk %}" class="btn btn-secondary" style="flex-direction: column; padding: 0.5rem; font-size: 0.75rem; gap: 0.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
           </svg>
           Edit
@@ -213,34 +202,31 @@
   </div>
 
   <!-- Live No Search Match State -->
-  <div x-show="visibleCards === 0 && totalCards > 0" x-cloak
-    class="bg-[#1E293B] border border-[#334155] rounded-xl p-12 text-center">
-    <div class="w-12 h-12 rounded-full bg-slate-800 border border-[#334155] flex items-center justify-center mx-auto mb-4 text-slate-400">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+  <div x-show="visibleCards === 0 && totalCards > 0" x-cloak class="card" style="padding: 3rem; text-align: center;">
+    <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--bg-app); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--text-muted);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
       </svg>
     </div>
-    <h3 class="text-base font-semibold text-white mb-1">No matching lockers found</h3>
-    <p class="text-sm text-slate-400 mb-4">No lockers matched "<span class="text-white font-medium" x-text="search"></span>".</p>
-    <button type="button" @click="search = ''; statusFilter = 'all'"
-      class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
+    <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">No matching lockers found</h3>
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">No lockers matched "<span style="color: var(--text-main); font-weight: 500;" x-text="search"></span>".</p>
+    <button type="button" @click="search = ''; statusFilter = 'all'" class="btn btn-primary">
       Reset Filters
     </button>
   </div>
 
   {% else %}
   <!-- Empty state (no lockers in DB) -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-12 text-center">
-    <div class="w-12 h-12 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+  <div class="card" style="padding: 3rem; text-align: center;">
+    <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--bg-app); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--text-muted);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
       </svg>
     </div>
-    <h3 class="text-base font-semibold text-white mb-1">No lockers found</h3>
-    <p class="text-sm text-slate-400 mb-4">Start by adding your first locker.</p>
-    <a href="{% url 'locker_add' %}"
-      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">No lockers found</h3>
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Start by adding your first locker.</p>
+    <a href="{% url 'locker_add' %}" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       Add First Locker
@@ -249,4 +235,8 @@
   {% endif %}
 
 </div>
+<style>
+  .text-red { color: var(--accent-red) !important; }
+  .text-muted { color: var(--text-muted) !important; }
+</style>
 {% endblock %}

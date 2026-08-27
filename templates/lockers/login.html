@@ -1,140 +1,141 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In — VaultBank Locker Enterprise</title>
   <meta name="description" content="Manager login for VaultBank Secure Locker Access System" />
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <!-- App Favicon & Mobile Homescreen Icons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon.png' %}" />
-  <link rel="icon" type="image/png" sizes="192x192" href="{% static 'img/logo.png' %}" />
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/logo.png' %}" />
+  
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/logo.svg' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   
-  <!-- Mobile Web App Capability -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="VaultBank" />
-  <meta name="theme-color" content="#0F172A" />
+  <meta name="theme-color" content="#FFFFFF" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'] } } } }</script>
-  <link href="https://cdn.jsdelivr.net/npm/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/vaultbank-theme.css' %}" />
 </head>
-<body class="bg-[#0F172A] text-slate-100 antialiased min-h-screen flex items-center justify-center p-4">
+<body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; background: var(--bg-body); overflow-x: hidden;">
 
-  <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 rounded-2xl overflow-hidden border border-[#334155] shadow-2xl bg-[#1E293B]">
+  <div class="card" style="width: 100%; max-width: 64rem; padding: 0; display: grid; grid-template-columns: 1fr 1fr; border-radius: 1rem; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color);">
 
-    <!-- Left branding & feature panel (visible on all devices) -->
-    <div class="flex flex-col justify-between p-6 sm:p-10 bg-gradient-to-br from-[#1E293B] to-[#0F172A] border-b md:border-b-0 md:border-r border-[#334155]">
+    <!-- Left branding & feature panel -->
+    <div style="background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-app) 100%); padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid var(--border-color);">
       <div>
         <!-- Logo -->
-        <div class="flex items-center gap-3.5 mb-6 md:mb-10">
-          <img src="{% static 'img/logo.png' %}" alt="VaultBank Logo" class="w-12 h-12 rounded-2xl object-contain bg-[#0F172A] border border-amber-500/30 p-1.5 shadow-xl shadow-amber-500/10 shrink-0" />
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem;">
+          <img src="{% static 'img/logo.svg' %}" alt="VaultBank Logo" style="width: 3.5rem; height: 3.5rem; flex-shrink: 0; filter: drop-shadow(0 4px 6px rgba(249, 115, 22, 0.2));" />
           <div>
-            <span class="font-extrabold text-2xl text-white block tracking-wide">VaultBank</span>
-            <span class="text-[11px] font-bold tracking-widest text-amber-400 uppercase">Locker Enterprise</span>
+            <span style="font-weight: 800; font-size: 1.5rem; color: var(--text-main); display: block; letter-spacing: -0.025em;">VaultBank</span>
+            <span style="font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-primary); text-transform: uppercase;">Locker Enterprise</span>
           </div>
         </div>
 
-        <h2 class="text-xl sm:text-2xl font-bold text-white mb-2">Secure Locker Management</h2>
-        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6 md:mb-8">Enterprise multi-customer locker allocation, QR token scanning, and real-time audit control.</p>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; letter-spacing: -0.025em;">Secure Locker Management</h2>
+        <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">Enterprise multi-customer locker allocation, QR token scanning, and real-time audit control.</p>
 
         <!-- Feature list -->
-        <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-2.5 sm:gap-3 mb-6 md:mb-0">
-
-          <li class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-300">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem;">
+          <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--text-main);">
+            <span style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="color: var(--accent-green);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
             </span>
             Multi-customer locker capacity (3/3)
           </li>
-          <li class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-300">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--text-main);">
+            <span style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="color: var(--accent-green);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
             </span>
             Auto-generated 22-char tokens &amp; QR
           </li>
-          <li class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-300">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--text-main);">
+            <span style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="color: var(--accent-green);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
             </span>
             2-step scan check-in flow
           </li>
-          <li class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-300">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          <li style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--text-main);">
+            <span style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="color: var(--accent-green);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
             </span>
             ID proof PDF &amp; image verification
           </li>
         </ul>
       </div>
-      <p class="text-xs text-slate-600 hidden md:block mt-6">&copy; 2026 VaultBank System &mdash; Enterprise Edition v2.4</p>
+      <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 3rem;">&copy; 2026 VaultBank System &mdash; Enterprise Edition v2.4</p>
     </div>
 
     <!-- Right login panel -->
-    <div class="p-6 sm:p-10 flex flex-col justify-center space-y-5 sm:space-y-6">
+    <div style="padding: 3rem; display: flex; flex-direction: column; justify-content: center; background: white;">
 
-      <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-white">Manager Login</h1>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1">Sign in to access the locker portal</p>
+      <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.25rem;">Manager Login</h1>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin: 0;">Sign in to access the locker portal</p>
       </div>
 
       <!-- Demo credentials callout -->
-      <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-blue-500/20 text-xs">
-        <div class="space-y-0.5">
-          <p class="font-semibold text-blue-400 uppercase tracking-wide text-[10px]">Demo Credentials</p>
-          <p class="text-slate-300 font-mono">admin / admin123</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 1.5rem;">
+        <div>
+          <p style="font-size: 0.625rem; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.125rem 0;">Demo Credentials</p>
+          <p style="font-size: 0.875rem; color: var(--text-main); font-family: monospace; font-weight: 600; margin: 0;">admin / admin123</p>
         </div>
-        <button type="button" onclick="fillDemo()"
-          class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors">
+        <button type="button" onclick="fillDemo()" class="btn btn-primary" style="padding: 0.375rem 0.875rem; font-size: 0.75rem;">
           Auto-fill
         </button>
       </div>
 
       <!-- Error alert -->
       {% if form.errors %}
-      <div class="flex items-center gap-2.5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+      <div style="display: flex; align-items: center; gap: 0.625rem; padding: 1rem; border-radius: var(--radius-md); background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--accent-red); font-size: 0.875rem; margin-bottom: 1.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
         Invalid username or password. Please try again.
       </div>
       {% endif %}
 
       <!-- Form -->
-      <form method="POST" action="{% url 'login' %}" class="space-y-4">
+      <form method="POST" action="{% url 'login' %}" style="display: flex; flex-direction: column; gap: 1.25rem;">
         {% csrf_token %}
         {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
 
-        <div class="space-y-1.5">
-          <label for="id_username" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Username</label>
-          <input type="text" name="username" id="id_username" required autocomplete="username"
-            placeholder="Enter username…"
-            class="vb-input" />
+        <div class="form-group" style="margin: 0;">
+          <label for="id_username" class="form-label" style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted);">Username</label>
+          <input type="text" name="username" id="id_username" required autocomplete="username" placeholder="Enter username…" class="form-input" style="padding: 0.75rem 1rem;" />
         </div>
 
-        <div class="space-y-1.5">
-          <label for="id_password" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
-          <input type="password" name="password" id="id_password" required autocomplete="current-password"
-            placeholder="Enter password…"
-            class="vb-input" />
+        <div class="form-group" style="margin: 0;">
+          <label for="id_password" class="form-label" style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted);">Password</label>
+          <input type="password" name="password" id="id_password" required autocomplete="current-password" placeholder="Enter password…" class="form-input" style="padding: 0.75rem 1rem;" />
         </div>
 
-        <button type="submit"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-xl font-semibold text-sm shadow-lg shadow-blue-500/25 transition-colors flex items-center justify-center gap-2">
+        <button type="submit" class="btn btn-primary" style="padding: 0.875rem; font-size: 0.875rem; justify-content: center; margin-top: 0.5rem; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);">
           Sign In to Portal
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
         </button>
       </form>
     </div>
   </div>
 
+  <style>
+    @media (max-width: 768px) {
+      .card[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+      .card > div:first-child {
+        display: none !important;
+      }
+      .card > div:last-child {
+        padding: 2rem !important;
+      }
+    }
+  </style>
   <script>
     function fillDemo() {
       document.getElementById('id_username').value = 'admin';

@@ -3,108 +3,117 @@
 {% block page_title %}Process Access Entry{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-5" x-data="{ allSelected: false }">
+<div style="max-width: 56rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;" x-data="{ allSelected: false }">
 
   <!-- Progress Steps -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-xl px-5 py-3.5 flex items-center gap-4">
-    <div class="flex items-center gap-2 text-green-400 text-sm font-semibold">
-      <span class="w-6 h-6 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+  <div class="card" style="padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--accent-green); font-size: 0.875rem; font-weight: 600;">
+      <span style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
       </span>
       Step 1: Token Verified
     </div>
-    <div class="flex-1 h-px bg-[#334155]"></div>
-    <div class="flex items-center gap-2 text-blue-400 text-sm font-semibold">
-      <span class="w-6 h-6 rounded-full bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-xs">2</span>
+    <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--accent-blue); font-size: 0.875rem; font-weight: 600;">
+      <span style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">2</span>
       Step 2: Select &amp; Process
     </div>
   </div>
 
   <!-- Locker info bar -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+  <div class="card" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div style="width: 2.5rem; height: 2.5rem; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); display: flex; align-items: center; justify-content: center; color: var(--accent-blue);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
       </div>
       <div>
-        <h2 class="text-base font-bold text-white">Locker #{{ locker.locker_number }}</h2>
-        <code class="text-xs text-blue-400 font-mono">{{ locker.token }}</code>
+        <h2 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">Locker #{{ locker.locker_number }}</h2>
+        <code style="font-size: 0.75rem; color: var(--accent-blue); font-family: monospace;">{{ locker.token }}</code>
       </div>
     </div>
-    <div class="flex items-center gap-2.5">
-      <span class="badge-green"><span class="dot-pulse"></span> Active</span>
-      <span class="text-xs text-slate-400">{{ customers|length }} customer{{ customers|length|pluralize }} registered</span>
+    <div style="display: flex; align-items: center; gap: 0.625rem;">
+      <span class="badge badge-green">Active</span>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">{{ customers|length }} customer{{ customers|length|pluralize }} registered</span>
     </div>
   </div>
 
   <!-- Active session warning -->
   {% if active_log %}
-  <div class="bg-[#1E293B] border border-amber-500/30 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-    <div class="flex items-center gap-3">
-      <span class="badge-amber"><span class="dot-pulse"></span> Occupied</span>
+  <div style="background: var(--bg-surface); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span class="badge badge-amber">Occupied</span>
       <div>
-        <p class="text-sm font-semibold text-white">{{ active_log.customer.name }} is currently inside</p>
-        <p class="text-xs text-slate-400">Check-in: {{ active_log.check_in_time|date:"d M, H:i" }}</p>
+        <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">{{ active_log.customer.name }} is currently inside</p>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.125rem 0 0;">Check-in: {{ active_log.check_in_time|date:"d M, H:i" }}</p>
       </div>
     </div>
-    <form method="POST" action="{% url 'check_out' active_log.pk %}">
+    <form method="POST" action="{% url 'check_out' active_log.pk %}" style="margin: 0;">
       {% csrf_token %}
-      <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm transition-colors">Process Check-Out</button>
+      <button type="submit" class="btn btn-primary" style="background: var(--accent-primary); border-color: var(--accent-primary);">Process Check-Out</button>
     </form>
   </div>
   {% endif %}
 
   <!-- Customer selection form -->
   {% if customers %}
-  <form method="POST" id="checkinForm" class="space-y-5">
+  <form method="POST" id="checkinForm" style="display: flex; flex-direction: column; gap: 1.25rem;">
     {% csrf_token %}
-    <div class="flex items-center justify-between">
-      <h3 class="text-base font-bold text-white">Authorised Customers</h3>
-      <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-slate-200 transition-colors">
-        <input type="checkbox" id="selectAll" class="w-4 h-4 rounded accent-blue-500"
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">Authorised Customers</h3>
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; color: var(--text-muted); transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">
+        <input type="checkbox" id="selectAll" style="width: 1rem; height: 1rem; border-radius: 0.25rem; accent-color: var(--accent-blue);"
           x-model="allSelected"
           @change="document.querySelectorAll('.cc-checkbox:not(:disabled)').forEach(c => c.checked = allSelected)" />
         Select All
       </label>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-3 gap-4" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
       {% for customer in customers %}
-      <label class="relative cursor-pointer group" for="cust_{{ customer.pk }}">
+      <label style="position: relative; cursor: pointer; display: block;" for="cust_{{ customer.pk }}">
         <input type="checkbox" name="customer_ids" value="{{ customer.pk }}" id="cust_{{ customer.pk }}"
-          class="cc-checkbox peer absolute opacity-0 w-0 h-0"
+          class="cc-checkbox" style="position: absolute; opacity: 0; width: 0; height: 0;"
           {% if customer.is_active_now %}disabled{% endif %} />
 
-        <div class="h-full bg-[#1E293B] border border-[#334155] peer-checked:border-blue-500 peer-checked:bg-blue-600/5 rounded-xl p-4 transition-all card-hover flex items-start gap-3">
+        <!-- Card content -->
+        <!-- Needs custom CSS to style based on checked state; doing basic inline styling, but usually this needs an Alpine watcher or CSS sibling selector. Using an Alpine binding for the class. -->
+        <div x-data="{ checked: false }" 
+             x-init="$watch('allSelected', val => { if(!{{ customer.is_active_now|yesno:'true,false' }}) checked = val; })"
+             @click="if(!{{ customer.is_active_now|yesno:'true,false' }}) checked = !checked"
+             :style="checked ? 'border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.05);' : 'border-color: var(--border-color); background: var(--bg-app);'"
+             style="height: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; transition: all 0.2s; display: flex; align-items: flex-start; gap: 0.75rem; box-shadow: var(--shadow-sm);">
+          
           <!-- Checkbox indicator -->
-          <div class="w-5 h-5 rounded border-2 border-[#334155] peer-checked:border-blue-500 peer-checked:bg-blue-500 flex items-center justify-center shrink-0 mt-0.5 transition-all {% if customer.is_active_now %}opacity-40{% endif %}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          <div :style="checked ? 'border-color: var(--accent-blue); background: var(--accent-blue);' : 'border-color: var(--border-color); background: transparent;'"
+               class="{% if customer.is_active_now %}opacity-40{% endif %}"
+               style="width: 1.25rem; height: 1.25rem; border-radius: 0.25rem; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.125rem; transition: all 0.2s;">
+            <svg x-show="checked" xmlns="http://www.w3.org/2000/svg" width="12" height="12" style="color: white;" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
           </div>
 
           <!-- Avatar -->
-          <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0">{{ customer.name|first|upper }}</div>
+          <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--accent-blue); color: white; font-weight: bold; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ customer.name|first|upper }}</div>
 
           <!-- Info -->
-          <div class="flex-1 min-w-0">
-            <p class="font-semibold text-white text-sm truncate">{{ customer.name }}</p>
-            <span class="badge-blue mt-1 inline-block">{{ customer.get_id_proof_type_display }}</span>
+          <div style="flex: 1; min-width: 0;">
+            <p style="font-weight: 600; color: var(--text-main); font-size: 0.875rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ customer.name }}</p>
+            <span class="badge badge-blue" style="margin-top: 0.25rem; display: inline-block;">{{ customer.get_id_proof_type_display }}</span>
             {% if customer.is_active_now %}
-            <p class="mt-1"><span class="badge-green">Currently Inside</span></p>
+            <p style="margin: 0.25rem 0 0;"><span class="badge badge-green">Currently Inside</span></p>
             {% endif %}
             {% if customer.id_proof_file and customer.id_proof_file_exists %}
             {% if customer.proof_is_image %}
-            <a href="{{ customer.id_proof_file.url }}" target="_blank" class="mt-2 block rounded-lg overflow-hidden border border-[#334155] max-w-[140px] h-16 group/img">
-              <img src="{{ customer.id_proof_file.url }}" alt="ID" class="w-full h-full object-cover group-hover/img:opacity-80 transition-opacity" />
+            <a href="{{ customer.id_proof_file.url }}" target="_blank" style="margin-top: 0.5rem; display: block; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-color); max-width: 140px; height: 4rem; text-decoration: none;">
+              <img src="{{ customer.id_proof_file.url }}" alt="ID" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" />
             </a>
             {% else %}
-            <a href="{{ customer.id_proof_file.url }}" target="_blank" class="mt-2 inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+            <a href="{{ customer.id_proof_file.url }}" target="_blank" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--accent-blue); text-decoration: none; transition: color 0.2s;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
               View (.{{ customer.proof_ext }})
             </a>
             {% endif %}
             {% elif customer.id_proof_file %}
-            <span class="mt-2 inline-flex items-center gap-1 text-xs text-red-400" title="File missing on server">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <span style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--accent-red);" title="File missing on server">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
               File Missing
             </span>
             {% endif %}
@@ -115,25 +124,24 @@
     </div>
 
     <!-- Action row -->
-    <div class="flex flex-wrap gap-3">
-      <button type="submit" onclick="return validateCheckinSelection()"
-        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/20 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+      <button type="submit" onclick="return validateCheckinSelection()" class="btn btn-primary" style="padding: 0.625rem 1.5rem; font-size: 0.875rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
         Process Entry
       </button>
-      <a href="{% url 'scan_token' %}" class="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-[#334155] transition-colors">Scan Another</a>
-      <a href="{% url 'locker_detail' locker.pk %}" class="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-[#334155] transition-colors">Manage Locker</a>
+      <a href="{% url 'scan_token' %}" class="btn btn-secondary" style="padding: 0.625rem 1.25rem; font-size: 0.875rem;">Scan Another</a>
+      <a href="{% url 'locker_detail' locker.pk %}" class="btn btn-secondary" style="padding: 0.625rem 1.25rem; font-size: 0.875rem;">Manage Locker</a>
     </div>
   </form>
 
   {% else %}
-  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-12 text-center">
-    <div class="w-12 h-12 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+  <div class="card" style="padding: 3rem; text-align: center;">
+    <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--bg-app); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--text-muted);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
     </div>
-    <h3 class="text-base font-semibold text-white mb-1">No Customers Assigned</h3>
-    <p class="text-sm text-slate-400 mb-4">Please assign customers before processing entry.</p>
-    <a href="{% url 'locker_detail' locker.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">Manage Locker</a>
+    <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">No Customers Assigned</h3>
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Please assign customers before processing entry.</p>
+    <a href="{% url 'locker_detail' locker.pk %}" class="btn btn-primary" style="padding: 0.5rem 1rem;">Manage Locker</a>
   </div>
   {% endif %}
 
@@ -150,4 +158,7 @@ function validateCheckinSelection() {
   return true;
 }
 </script>
+<style>
+  .opacity-40 { opacity: 0.4; }
+</style>
 {% endblock %}

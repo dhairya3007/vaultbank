@@ -1,375 +1,191 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>{% block title %}VaultBank{% endblock %} — Locker Enterprise</title>
   <meta name="description" content="VaultBank Enterprise Locker Management & Access Control System" />
 
-  <!-- Inter Font -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- App Favicon & Mobile Homescreen Icons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon.png' %}" />
-  <link rel="icon" type="image/png" sizes="192x192" href="{% static 'img/logo.png' %}" />
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/logo.png' %}" />
-  <link rel="manifest" href="{% static 'manifest.json' %}" />
-  
-  <!-- Mobile Web App Capability -->
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="VaultBank" />
-  <meta name="theme-color" content="#0F172A" />
-
-  <!-- Tailwind CSS v3 CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-          colors: {
-            surface: { DEFAULT: '#1E293B', dark: '#0F172A', border: '#334155' },
-          },
-        }
-      }
-    }
-  </script>
-
-  <!-- Flowbite v2 -->
-  <link href="https://cdn.jsdelivr.net/npm/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
-
-  <!-- Alpine.js v3 (defer) -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/logo.svg' %}" />
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/vaultbank-theme.css' %}" />
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
   <style>
     [x-cloak] { display: none !important; }
-    
-    /* iOS Safe Area Utilities */
-    .safe-top {
-      padding-top: max(0.75rem, env(safe-area-inset-top));
-    }
-    .safe-bottom {
-      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-    }
+    .border-error { border-left: 4px solid var(--accent-red) !important; }
+    .border-warning { border-left: 4px solid var(--accent-primary) !important; }
+    .border-success { border-left: 4px solid var(--accent-green) !important; }
   </style>
 </head>
 
-<body class="bg-[#0F172A] text-slate-100 antialiased" x-data>
+<body x-data="{ sidebarOpen: false }">
 
-<!-- ═══════════════════════════════════════════════════════
-     DESKTOP SIDEBAR (fixed, lg+)
-════════════════════════════════════════════════════════ -->
-<aside id="sidebar"
-  class="fixed inset-y-0 left-0 z-50 w-64 bg-[#1E293B] border-r border-[#334155] flex-col hidden lg:flex">
+<div class="app-container">
+  
+  <!-- Sidebar Backdrop (Mobile) -->
+  <div class="sidebar-backdrop" x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" 
+       style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 35;"></div>
 
-  <!-- Brand -->
-  <div class="flex items-center gap-3 px-5 py-4 border-b border-[#334155]">
-    <img src="{% static 'img/logo.png' %}" alt="VaultBank Logo" class="w-10 h-10 rounded-xl object-contain bg-[#0F172A] border border-amber-500/20 p-1 shadow-md shadow-amber-500/10 shrink-0" />
-    <div>
-      <span class="font-extrabold text-base leading-tight tracking-wide text-white block">VaultBank</span>
-      <span class="text-[10px] font-bold tracking-widest text-amber-400 uppercase block">Locker Enterprise</span>
-    </div>
-  </div>
-
-  <!-- Nav -->
-  <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-
-    <a href="{% url 'dashboard' %}"
-      class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-      {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-slate-100{% endif %}">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
-      </svg>
-      Dashboard
+  <!-- Sidebar -->
+  <aside class="sidebar" :class="{ 'open': sidebarOpen }">
+    <a href="{% url 'dashboard' %}" class="sidebar-header" style="text-decoration: none; cursor: pointer;">
+      <img src="{% static 'img/logo.svg' %}" alt="VaultBank Logo" style="width: 32px; height: 32px; flex-shrink: 0;" />
+      <div class="brand-text">VaultBank</div>
     </a>
 
-    <a href="{% url 'scan_token' %}"
-      class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-      {% if request.resolver_match.url_name == 'scan_token' or request.resolver_match.url_name == 'scan_checkin' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-slate-100{% endif %}">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
-      </svg>
-      Scan Access
-    </a>
-
-    <a href="{% url 'locker_list' %}"
-      class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-      {% if 'locker' in request.resolver_match.url_name %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-slate-100{% endif %}">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-      </svg>
-      Lockers
-    </a>
-
-    <a href="{% url 'customer_list' %}"
-      class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-      {% if 'customer' in request.resolver_match.url_name %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-slate-100{% endif %}">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-      </svg>
-      Customers
-    </a>
-
-    <a href="{% url 'access_log' %}"
-      class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-      {% if request.resolver_match.url_name == 'access_log' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-slate-100{% endif %}">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-      </svg>
-      Audit Logs
-    </a>
-
-    <a href="{% url 'api_explorer' %}"
-      class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-      {% if request.resolver_match.url_name == 'api_explorer' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-slate-100{% endif %}">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
-      </svg>
-      API Explorer
-    </a>
-
-  </nav>
-
-  <!-- User footer -->
-  {% if user.is_authenticated %}
-  <div class="px-3 py-3 border-t border-[#334155]">
-    <div class="flex items-center gap-3 px-2">
-      <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-        {{ user.username|first|upper }}
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-white truncate">{{ user.username }}</p>
-        <p class="text-xs text-green-400 font-medium flex items-center gap-1">
-          <span class="dot-pulse text-green-400"></span> Manager
-        </p>
-      </div>
-      <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" title="Sign Out"
-          class="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-          </svg>
-        </button>
-      </form>
-    </div>
-  </div>
-  {% endif %}
-</aside>
-
-<!-- ═══════════════════════════════════════════════════════
-     MOBILE SIDEBAR DRAWER (Alpine.js with Scroll Lock)
-════════════════════════════════════════════════════════ -->
-<div x-data="{ open: false }" 
-     x-init="$watch('open', value => {
-       if (value) {
-         document.body.style.overflow = 'hidden';
-         document.body.style.touchAction = 'none';
-       } else {
-         document.body.style.overflow = '';
-         document.body.style.touchAction = '';
-       }
-     })"
-     @keydown.escape.window="open = false" 
-     id="mobileSidebarWrapper">
-
-  <!-- Backdrop (Prevents background touch scrolling) -->
-  <div x-show="open" x-cloak x-transition.opacity
-    @click="open = false"
-    @touchmove.prevent
-    class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm lg:hidden touch-none"></div>
-
-  <!-- Drawer -->
-  <aside x-show="open" x-cloak
-    x-transition:enter="transition ease-out duration-250"
-    x-transition:enter-start="-translate-x-full"
-    x-transition:enter-end="translate-x-0"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="translate-x-0"
-    x-transition:leave-end="-translate-x-full"
-    class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#1E293B] border-r border-[#334155] flex flex-col lg:hidden shadow-2xl overscroll-contain">
-
-    <!-- Header (with safe-area top padding) -->
-    <div class="flex items-center justify-between px-5 py-4 border-b border-[#334155] safe-top">
-      <div class="flex items-center gap-2.5">
-        <img src="{% static 'img/logo.png' %}" alt="VaultBank Logo" class="w-8 h-8 rounded-lg object-contain bg-[#0F172A] border border-amber-500/20 p-0.5 shadow-sm shrink-0" />
-        <div>
-          <span class="font-extrabold text-sm text-white block leading-tight">VaultBank</span>
-          <span class="text-[9px] font-bold text-amber-400 uppercase block tracking-wider">Enterprise</span>
-        </div>
-      </div>
-      <button @click="open = false" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" aria-label="Close menu">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Nav links (mobile) -->
-    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-      <a href="{% url 'dashboard' %}" @click="open=false"
-        class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors
-        {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+    <nav class="sidebar-nav">
+      <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
         </svg>
         Dashboard
       </a>
-      <a href="{% url 'scan_token' %}" @click="open=false"
-        class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors
-        {% if request.resolver_match.url_name == 'scan_token' or request.resolver_match.url_name == 'scan_checkin' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+
+      <a href="{% url 'scan_token' %}" class="nav-item {% if request.resolver_match.url_name == 'scan_token' or request.resolver_match.url_name == 'scan_checkin' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
         </svg>
         Scan Access
       </a>
-      <a href="{% url 'locker_list' %}" @click="open=false"
-        class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors
-        {% if 'locker' in request.resolver_match.url_name %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+
+      <a href="{% url 'locker_list' %}" class="nav-item {% if 'locker' in request.resolver_match.url_name %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
         </svg>
         Lockers
       </a>
-      <a href="{% url 'customer_list' %}" @click="open=false"
-        class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors
-        {% if 'customer' in request.resolver_match.url_name %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+
+      <a href="{% url 'customer_list' %}" class="nav-item {% if 'customer' in request.resolver_match.url_name %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
         </svg>
         Customers
       </a>
-      <a href="{% url 'access_log' %}" @click="open=false"
-        class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors
-        {% if request.resolver_match.url_name == 'access_log' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+
+      <a href="{% url 'access_log' %}" class="nav-item {% if request.resolver_match.url_name == 'access_log' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
         </svg>
         Audit Logs
       </a>
       
-      <a href="{% url 'api_explorer' %}" @click="open=false"
-        class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors
-        {% if request.resolver_match.url_name == 'api_explorer' %}bg-blue-600 text-white shadow-lg shadow-blue-500/20{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+      <a href="{% url 'api_explorer' %}" class="nav-item {% if request.resolver_match.url_name == 'api_explorer' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
         </svg>
         API Explorer
       </a>
     </nav>
-
-    <!-- Mobile User footer -->
+    
     {% if user.is_authenticated %}
-    <div class="px-4 py-3 border-t border-[#334155] safe-bottom bg-[#1E293B]">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-          {{ user.username|first|upper }}
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-white truncate">{{ user.username }}</p>
-          <p class="text-xs text-green-400 font-medium flex items-center gap-1">
-            <span class="dot-pulse text-green-400"></span> Manager
-          </p>
-        </div>
-        <form method="POST" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" title="Sign Out"
-            class="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-            </svg>
-          </button>
-        </form>
+    <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem;">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+        {{ user.username|first|upper }}
       </div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-size: 0.875rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.username }}</div>
+        <div style="font-size: 0.75rem; color: var(--accent-green);">● Active</div>
+      </div>
+      <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" style="color: var(--text-muted); padding: 0.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+          </svg>
+        </button>
+      </form>
     </div>
     {% endif %}
   </aside>
 
-  <!-- ═══════════════════════════════════════════════════
-       MAIN CONTENT AREA
-  ════════════════════════════════════════════════════ -->
-  <div class="lg:pl-64 flex flex-col min-h-screen">
-
-    <!-- Topbar (Solid opaque, Notch & Dynamic Island Safe Area Handling) -->
-    <header id="topbar" class="sticky top-0 z-30 bg-[#1E293B] border-b border-[#334155] px-4 sm:px-6 safe-top pb-3 flex items-center justify-between gap-3 shadow-md">
-      <div class="flex items-center gap-3 min-w-0">
-        <!-- Mobile hamburger -->
-        <button @click="open = true"
-          aria-label="Open navigation menu"
-          class="lg:hidden p-2 rounded-lg bg-[#0F172A] text-slate-300 hover:text-white border border-[#334155] active:scale-95 transition-all shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- Topbar -->
+    <header class="topbar">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button @click="sidebarOpen = true" style="display: none;" class="mobile-menu-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
-        <h1 class="text-base sm:text-lg font-bold text-white tracking-tight truncate">
-          {% block page_title %}Dashboard{% endblock %}
-        </h1>
+        <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
       </div>
-
-      <!-- Topbar right -->
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="{% url 'scan_token' %}"
-          class="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+      
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="{% url 'scan_token' %}" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
           </svg>
-          <span class="hidden sm:inline">Scan Access</span>
+          Scan Access
         </a>
       </div>
     </header>
 
-    <!-- Flash messages -->
+    <!-- Flash Messages -->
     {% if messages %}
-    <div class="px-4 sm:px-6 pt-4 space-y-2">
+    <div style="padding: 1rem 2rem 0;">
       {% for message in messages %}
-      <div x-data="{ show: true }" x-show="show" x-transition
-        class="vb-toast flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium border
-        {% if message.tags == 'error' %}bg-red-500/10 border-red-500/20 text-red-400
-        {% elif message.tags == 'warning' %}bg-amber-500/10 border-amber-500/20 text-amber-400
-        {% else %}bg-green-500/10 border-green-500/20 text-green-400{% endif %}">
-        <div class="flex items-center gap-2">
-          {% if message.tags == 'error' %}
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-          {% elif message.tags == 'warning' %}
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-          {% else %}
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-          {% endif %}
+      <div class="card flash-message border-{{ message.tags|default:'success' }}" style="padding: 1rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 0.875rem; font-weight: 500; padding-right: 1rem;">
           {{ message }}
         </div>
-        <button @click="show = false" class="shrink-0 opacity-60 hover:opacity-100 transition-opacity">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+        <button type="button" class="close-btn" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); display: flex; padding: 0.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
         </button>
       </div>
       {% endfor %}
+      
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const alerts = document.querySelectorAll('.flash-message');
+          alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => {
+              alert.style.opacity = '0';
+              setTimeout(() => alert.remove(), 300); // Wait for fade out
+            }, 5000);
+            
+            const closeBtn = alert.querySelector('.close-btn');
+            if (closeBtn) {
+              closeBtn.addEventListener('click', () => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+              });
+            }
+          });
+        });
+      </script>
     </div>
     {% endif %}
 
-    <!-- Page content with bottom safe area padding -->
-    <main class="flex-1 p-4 sm:p-6 safe-bottom">
+    <!-- Page Content -->
+    <div class="content-wrapper">
       {% block content %}{% endblock %}
-    </main>
+    </div>
 
-  </div><!-- /main content -->
-</div><!-- /mobileSidebarWrapper -->
+  </main>
+</div>
 
-<!-- Flowbite JS -->
-<script src="https://cdn.jsdelivr.net/npm/flowbite@2.3.0/dist/flowbite.min.js"></script>
-<!-- App JS -->
-<script src="{% static 'js/main.js' %}"></script>
+<style>
+  @media (max-width: 1024px) {
+    .mobile-menu-btn { display: block !important; color: var(--text-main); }
+  }
+</style>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>

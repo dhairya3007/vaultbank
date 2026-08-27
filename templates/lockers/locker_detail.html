@@ -2,264 +2,325 @@
 {% block title %}Locker #{{ locker.locker_number }}{% endblock %}
 {% block page_title %}Locker #{{ locker.locker_number }}{% endblock %}
 {% block content %}
-<div class="space-y-5">
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
   <!-- Header bar -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div class="flex items-center gap-4">
-      <div class="w-11 h-11 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+  <div class="card" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="width: 3rem; height: 3rem; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-blue);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+        </svg>
       </div>
       <div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <h2 class="text-xl font-bold text-white">Locker #{{ locker.locker_number }}</h2>
-          {% if locker.is_active %}<span class="badge-green"><span class="dot-pulse"></span> Active</span>{% else %}<span class="badge-red">Inactive</span>{% endif %}
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0;">Locker #{{ locker.locker_number }}</h2>
+          {% if locker.is_active %}
+          <span class="badge badge-green">Active</span>
+          {% else %}
+          <span class="badge badge-red">Inactive</span>
+          {% endif %}
         </div>
-        <p class="text-xs text-slate-500 mt-0.5 font-mono">Token: <span class="text-blue-400 select-all">{{ locker.token }}</span></p>
+        <p style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace; margin-top: 0.25rem;">
+          Token: <span style="color: var(--accent-blue); user-select: all;">{{ locker.token }}</span>
+        </p>
       </div>
     </div>
-    <div class="flex items-center gap-2 shrink-0">
-      <a href="{% url 'locker_edit' locker.pk %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-slate-300 text-sm font-semibold border border-[#334155] transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+      <a href="{% url 'locker_edit' locker.pk %}" class="btn btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
         Edit
       </a>
-      <a href="{% url 'locker_delete' locker.pk %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-sm font-semibold border border-red-500/20 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+      <a href="{% url 'locker_delete' locker.pk %}" class="btn btn-secondary" style="color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
         Delete
       </a>
     </div>
   </div>
 
   <!-- Main grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+  <div class="grid grid-cols-1" style="grid-template-columns: 2fr 1fr;">
 
     <!-- Left: Specs, QR, Entry panel -->
-    <div class="lg:col-span-2 space-y-5">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
       <!-- Vault specs -->
-      <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 space-y-4">
-        <h3 class="text-sm font-semibold text-white border-b border-[#334155] pb-3">Vault Specifications</h3>
-        <div class="grid grid-cols-3 gap-3">
-          <div class="bg-[#0F172A] p-3 rounded-lg border border-[#334155]">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Capacity</p>
-            <p class="text-lg font-bold text-white mt-1">{{ locker.customer_count }}/3</p>
-            <p class="text-xs text-slate-500">Users</p>
-          </div>
-          <div class="bg-[#0F172A] p-3 rounded-lg border border-[#334155]">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Occupancy</p>
-            {% if active_log %}
-            <p class="text-lg font-bold text-amber-400 mt-1">Occupied</p>
-            <p class="text-xs text-amber-500">In progress</p>
-            {% else %}
-            <p class="text-lg font-bold text-green-400 mt-1">Vacant</p>
-            <p class="text-xs text-green-600">Ready</p>
-            {% endif %}
-          </div>
-          <div class="bg-[#0F172A] p-3 rounded-lg border border-[#334155]">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Security</p>
-            <p class="text-lg font-bold text-green-400 mt-1">AES-256</p>
-            <p class="text-xs text-slate-500">QR Encrypted</p>
-          </div>
+      <div class="card" style="padding: 0;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Vault Specifications</h3>
         </div>
-
-        <!-- Lease Agreement & Billing -->
-        <div class="p-4 bg-[#0F172A] rounded-xl border border-[#334155] space-y-3">
-          <div class="flex items-center justify-between">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Lease Agreement &amp; Billing</h4>
-            {% if locker.lease_status == 'overdue' %}
-            <span class="badge-red"><span class="dot-pulse"></span> Payment Overdue</span>
-            {% elif locker.lease_status == 'expiring_soon' %}
-            <span class="badge-amber"><span class="dot-pulse"></span> Expiring Soon</span>
-            {% else %}
-            <span class="badge-green"><span class="dot-pulse"></span> Paid &amp; Active</span>
-            {% endif %}
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div>
-              <p class="text-slate-400">Annual Fee</p>
-              <p class="font-bold text-white font-mono mt-0.5">${{ locker.annual_fee|floatformat:2 }}</p>
+        <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <div class="grid grid-cols-3 gap-3">
+            <div style="background: var(--bg-app); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Capacity</p>
+              <p style="font-size: 1.125rem; font-weight: 700; color: var(--text-main); margin: 0.25rem 0;">{{ locker.customer_count }}/3</p>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">Users</p>
             </div>
-            <div>
-              <p class="text-slate-400">Lease Start</p>
-              <p class="font-semibold text-slate-200 mt-0.5">{{ locker.lease_start_date|date:"d M Y"|default:"Not set" }}</p>
-            </div>
-            <div>
-              <p class="text-slate-400">Lease Expiry</p>
-              <p class="font-semibold text-slate-200 mt-0.5">{{ locker.lease_end_date|date:"d M Y"|default:"Not set" }}</p>
-            </div>
-            <div>
-              <p class="text-slate-400">Status / Time</p>
-              {% if locker.days_until_expiration is not None %}
-                {% if locker.days_until_expiration < 0 %}
-                <p class="font-bold text-red-400 mt-0.5">{{ locker.days_until_expiration|stringformat:"+d"|slice:"1:" }}d overdue</p>
-                {% else %}
-                <p class="font-bold text-amber-400 mt-0.5">{{ locker.days_until_expiration }} days left</p>
-                {% endif %}
+            <div style="background: var(--bg-app); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Occupancy</p>
+              {% if active_log %}
+              <p style="font-size: 1.125rem; font-weight: 700; color: var(--accent-primary); margin: 0.25rem 0;">Occupied</p>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">In progress</p>
               {% else %}
-                <p class="text-slate-500 italic mt-0.5">Continuous</p>
+              <p style="font-size: 1.125rem; font-weight: 700; color: var(--accent-green); margin: 0.25rem 0;">Vacant</p>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">Ready</p>
               {% endif %}
             </div>
+            <div style="background: var(--bg-app); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Security</p>
+              <p style="font-size: 1.125rem; font-weight: 700; color: var(--accent-green); margin: 0.25rem 0;">AES-256</p>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">QR Encrypted</p>
+            </div>
           </div>
-        </div>
 
-        <!-- QR Code -->
-        <div class="flex flex-col sm:flex-row items-center gap-5 p-4 bg-[#0F172A] rounded-xl border border-[#334155]">
-          <div class="w-28 h-28 p-2 bg-white rounded-xl shrink-0">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=160x160&bgcolor=ffffff&color=000000&margin=5" alt="QR Code" class="w-full h-full object-contain" />
+          <!-- Lease Agreement & Billing -->
+          <div style="padding: 1rem; background: var(--bg-app); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+              <h4 style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0;">Lease Agreement &amp; Billing</h4>
+              {% if locker.lease_status == 'overdue' %}
+              <span class="badge badge-red">Payment Overdue</span>
+              {% elif locker.lease_status == 'expiring_soon' %}
+              <span class="badge badge-amber">Expiring Soon</span>
+              {% else %}
+              <span class="badge badge-green">Paid &amp; Active</span>
+              {% endif %}
+            </div>
+            <div class="grid grid-cols-4 gap-3">
+              <div>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Annual Fee</p>
+                <p style="font-size: 0.875rem; font-weight: 700; color: var(--text-main); font-family: monospace; margin-top: 0.25rem;">${{ locker.annual_fee|floatformat:2 }}</p>
+              </div>
+              <div>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Lease Start</p>
+                <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin-top: 0.25rem;">{{ locker.lease_start_date|date:"d M Y"|default:"Not set" }}</p>
+              </div>
+              <div>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Lease Expiry</p>
+                <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin-top: 0.25rem;">{{ locker.lease_end_date|date:"d M Y"|default:"Not set" }}</p>
+              </div>
+              <div>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Status / Time</p>
+                {% if locker.days_until_expiration is not None %}
+                  {% if locker.days_until_expiration < 0 %}
+                  <p style="font-size: 0.875rem; font-weight: 700; color: var(--accent-red); margin-top: 0.25rem;">{{ locker.days_until_expiration|stringformat:"+d"|slice:"1:" }}d overdue</p>
+                  {% else %}
+                  <p style="font-size: 0.875rem; font-weight: 700; color: var(--accent-primary); margin-top: 0.25rem;">{{ locker.days_until_expiration }} days left</p>
+                  {% endif %}
+                {% else %}
+                  <p style="font-size: 0.875rem; color: var(--text-muted); font-style: italic; margin-top: 0.25rem;">Continuous</p>
+                {% endif %}
+              </div>
+            </div>
           </div>
-          <div class="space-y-2 flex-1 text-center sm:text-left">
-            <h4 class="text-sm font-bold text-white">QR Token Access Code</h4>
-            <p class="text-xs text-slate-400">Scan at manager workstation or mobile scanner to auto-load check-in.</p>
-            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
-              <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=400x400&bgcolor=ffffff&color=000000&margin=20" target="_blank"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                Download QR
-              </a>
-              <button type="button" id="copyTokenBtn"
-                onclick="copyToClipboard('{{ locker.token }}', document.getElementById('copyTokenBtn'))"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E293B] hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-[#334155] transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>
-                Copy Token
-              </button>
+
+          <!-- QR Code -->
+          <div style="display: flex; align-items: center; gap: 1.25rem; padding: 1rem; background: var(--bg-app); border-radius: var(--radius-md); border: 1px solid var(--border-color); flex-wrap: wrap;">
+            <div style="width: 7rem; height: 7rem; padding: 0.5rem; background: white; border-radius: var(--radius-md); border: 1px solid var(--border-color); flex-shrink: 0;">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=160x160&bgcolor=ffffff&color=000000&margin=5" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;" />
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+              <h4 style="font-size: 0.875rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">QR Token Access Code</h4>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">Scan at manager workstation or mobile scanner to auto-load check-in.</p>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ locker.token }}&size=400x400&bgcolor=ffffff&color=000000&margin=20" target="_blank" class="btn btn-primary" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                  Download QR
+                </a>
+                <button type="button" id="copyTokenBtn" onclick="copyToClipboard('{{ locker.token }}', document.getElementById('copyTokenBtn'))" class="btn btn-secondary" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>
+                  Copy Token
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Entry / Check-out Panel -->
-      <div class="bg-[#1E293B] border border-blue-500/20 rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between border-b border-[#334155] pb-3">
-          <h3 class="text-sm font-semibold text-white">{% if active_log %}Active Session Control{% else %}Process Access Entry{% endif %}</h3>
-          {% if active_log %}<span class="badge-amber"><span class="dot-pulse"></span> Active Now</span>{% endif %}
+      {% if active_log %}
+      <div class="card" style="padding: 0; border: 1px solid var(--accent-primary);">
+      {% else %}
+      <div class="card" style="padding: 0; border: 1px solid var(--accent-blue);">
+      {% endif %}
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">{% if active_log %}Active Session Control{% else %}Process Access Entry{% endif %}</h3>
+          {% if active_log %}<span class="badge badge-amber">Active Now</span>{% endif %}
         </div>
-
-        {% if active_log %}
-        <div class="bg-[#0F172A] border border-amber-500/20 rounded-xl p-4 space-y-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center shrink-0">{{ active_log.customer.name|first|upper }}</div>
-            <div>
-              <p class="font-semibold text-white">{{ active_log.customer.name }}</p>
-              <p class="text-xs text-slate-400">In: {{ active_log.check_in_time|date:"d M Y, H:i" }}</p>
-              <span class="text-xs font-semibold text-amber-400">Duration: {{ active_log.duration }}</span>
-            </div>
-          </div>
-          <form method="POST" action="{% url 'check_out' active_log.pk %}">
-            {% csrf_token %}
-            <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm transition-colors">Complete Check-Out</button>
-          </form>
-        </div>
-
-        {% elif customers %}
-        <form method="POST" action="{% url 'check_in' %}" class="space-y-4">
-          {% csrf_token %}
-          <input type="hidden" name="locker_id" value="{{ locker.pk }}" />
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Select Authorised Customer</p>
-          <div class="space-y-2">
-            {% for customer in customers %}
-            <label class="flex items-center gap-3 p-3 rounded-xl bg-[#0F172A] border border-[#334155] hover:border-blue-500/50 cursor-pointer has-[:checked]:border-blue-500 has-[:checked]:bg-blue-600/5 transition-all">
-              <input type="radio" name="customer_id" value="{{ customer.pk }}" class="accent-blue-500" required />
-              <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">{{ customer.name|first|upper }}</div>
+        
+        <div style="padding: 1.5rem;">
+          {% if active_log %}
+          <div style="background: var(--bg-app); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: var(--radius-md); padding: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--accent-primary); color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ active_log.customer.name|first|upper }}</div>
               <div>
-                <p class="text-sm font-semibold text-white">{{ customer.name }}</p>
-                <p class="text-xs text-slate-400">{{ customer.get_id_proof_type_display }}</p>
+                <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">{{ active_log.customer.name }}</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.125rem 0;">In: {{ active_log.check_in_time|date:"d M Y, H:i" }}</p>
+                <span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-primary);">Duration: {{ active_log.duration }}</span>
               </div>
-            </label>
-            {% endfor %}
+            </div>
+            <form method="POST" action="{% url 'check_out' active_log.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; justify-content: center;">Complete Check-Out</button>
+            </form>
           </div>
-          <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-colors">Process Entry</button>
-        </form>
 
-        {% else %}
-        <div class="bg-[#0F172A] border border-red-500/20 rounded-xl p-5 text-center space-y-2">
-          <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126Z" /></svg>
+          {% elif customers %}
+          <form method="POST" action="{% url 'check_in' %}" style="display: flex; flex-direction: column; gap: 1rem;">
+            {% csrf_token %}
+            <input type="hidden" name="locker_id" value="{{ locker.pk }}" />
+            <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Select Authorised Customer</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              {% for customer in customers %}
+              <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: var(--radius-md); background: var(--bg-app); border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s;">
+                <input type="radio" name="customer_id" value="{{ customer.pk }}" required style="accent-color: var(--accent-blue);" />
+                <div style="width: 2rem; height: 2rem; border-radius: 50%; background: var(--accent-blue); color: white; font-weight: bold; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ customer.name|first|upper }}</div>
+                <div>
+                  <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">{{ customer.name }}</p>
+                  <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">{{ customer.get_id_proof_type_display }}</p>
+                </div>
+              </label>
+              {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; justify-content: center;">Process Entry</button>
+          </form>
+
+          {% else %}
+          <div style="background: var(--bg-app); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: 1.25rem; text-align: center; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: rgba(239, 68, 68, 0.1); color: var(--accent-red); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126Z" /></svg>
+            </div>
+            <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">No Customers Assigned</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Add a customer using the panel on the right to enable entry.</p>
           </div>
-          <p class="text-sm font-semibold text-white">No Customers Assigned</p>
-          <p class="text-xs text-slate-400">Add a customer using the panel on the right to enable entry.</p>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
 
     </div>
 
     <!-- Right: Customers & Logs -->
-    <div class="space-y-5">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
       <!-- Assigned customers -->
-      <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between border-b border-[#334155] pb-3">
-          <h3 class="text-sm font-semibold text-white">Customers ({{ customers|length }}/3)</h3>
-          <span class="badge-blue">Max 3</span>
+      <div class="card" style="padding: 0;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Customers ({{ customers|length }}/3)</h3>
+          <span class="badge badge-blue">Max 3</span>
         </div>
-        {% if customers %}
-        <div class="space-y-2">
-          {% for customer in customers %}
-          <div class="flex items-center justify-between p-3 rounded-lg bg-[#0F172A] border border-[#334155]">
-            <div class="flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">{{ customer.name|first|upper }}</div>
-              <div>
-                <a href="{% url 'customer_detail' customer.pk %}" class="text-sm font-semibold text-white hover:text-blue-400 transition-colors block">{{ customer.name }}</a>
-                <span class="text-xs text-slate-500">{{ customer.get_id_proof_type_display }}</span>
+        <div style="padding: 1.5rem;">
+          {% if customers %}
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            {% for customer in customers %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-radius: var(--radius-md); background: var(--bg-app); border: 1px solid var(--border-color);">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--accent-blue); color: white; font-weight: bold; font-size: 0.6875rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ customer.name|first|upper }}</div>
+                <div>
+                  <a href="{% url 'customer_detail' customer.pk %}" style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); text-decoration: none; display: block; margin: 0;">{{ customer.name }}</a>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">{{ customer.get_id_proof_type_display }}</span>
+                </div>
               </div>
+              <form method="POST" action="{% url 'remove_locker_user' locker.pk customer.pk %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" style="background: transparent; border: none; cursor: pointer; padding: 0.25rem; color: var(--text-muted); border-radius: 0.25rem; transition: color 0.2s;" title="Remove" onmouseover="this.style.color='var(--accent-red)'" onmouseout="this.style.color='var(--text-muted)'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                </button>
+              </form>
             </div>
-            <form method="POST" action="{% url 'remove_locker_user' locker.pk customer.pk %}">
+            {% endfor %}
+          </div>
+          {% else %}
+          <p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; text-align: center; padding: 0.75rem 0; margin: 0;">No customers assigned yet.</p>
+          {% endif %}
+
+          {% if can_add %}
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem;">
+            <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Assign Customer</p>
+            <form method="POST" action="{% url 'add_locker_user' locker.pk %}" style="display: flex; gap: 0.5rem;">
               {% csrf_token %}
-              <button type="submit" onclick="return confirm('Remove {{ customer.name }}?')" class="p-1 rounded text-slate-500 hover:text-red-400 transition-colors" title="Remove">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-              </button>
+              <select name="customer" required class="form-input" style="flex: 1; padding: 0.5rem 0.75rem; font-size: 0.75rem; min-width: 0;">
+                <option value="">Select customer…</option>
+                {% for choice in add_form.fields.customer.queryset %}
+                <option value="{{ choice.pk }}">{{ choice.name }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.75rem; flex-shrink: 0;">Add</button>
             </form>
           </div>
-          {% endfor %}
+          {% else %}
+          <div style="margin-top: 1rem; padding: 0.5rem; border-radius: var(--radius-md); background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); color: var(--accent-primary); font-size: 0.75rem; font-weight: 600; text-align: center;">Max capacity reached (3/3)</div>
+          {% endif %}
         </div>
-        {% else %}
-        <p class="text-xs text-slate-500 italic text-center py-3">No customers assigned yet.</p>
-        {% endif %}
-
-        {% if can_add %}
-        <div class="pt-3 border-t border-[#334155] space-y-2">
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Assign Customer</p>
-          <form method="POST" action="{% url 'add_locker_user' locker.pk %}" class="flex gap-2">
-            {% csrf_token %}
-            <select name="customer" required class="vb-input flex-1 text-xs">
-              <option value="">Select customer…</option>
-              {% for choice in add_form.fields.customer.queryset %}
-              <option value="{{ choice.pk }}">{{ choice.name }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit" class="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors shrink-0">Add</button>
-          </form>
-        </div>
-        {% else %}
-        <div class="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold text-center">Max capacity reached (3/3)</div>
-        {% endif %}
       </div>
 
-      <!-- Access history -->
-      <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between border-b border-[#334155] pb-3">
-          <h3 class="text-sm font-semibold text-white">Access History</h3>
-          <a href="{% url 'access_log' %}?q={{ locker.locker_number }}" class="text-xs text-blue-400 hover:text-blue-300 transition-colors">All &rarr;</a>
+      <!-- Activity Tracker -->
+      <div class="card" style="padding: 0;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Activity Tracker</h3>
         </div>
-        {% if logs %}
-        <div class="space-y-2">
-          {% for log in logs %}
-          <div class="flex items-center justify-between p-3 rounded-lg bg-[#0F172A] border border-[#334155] text-xs">
-            <div>
-              <p class="font-semibold text-white">{{ log.customer.name }}</p>
-              <p class="text-slate-500 mt-0.5">{{ log.check_in_time|date:"d M, H:i" }}</p>
+        <div style="padding: 1.5rem; max-height: 400px; overflow-y: auto;">
+          {% if activities %}
+          <div style="display: flex; flex-direction: column; gap: 1rem; position: relative;">
+            <!-- Vertical line -->
+            <div style="position: absolute; left: 15px; top: 10px; bottom: 10px; width: 2px; background: var(--border-color); z-index: 0;"></div>
+            
+            {% for activity in activities %}
+            <div style="display: flex; gap: 1rem; position: relative; z-index: 1;">
+              <!-- Icon -->
+              <div class="activity-icon 
+                {% if activity.activity_type == 'created' or activity.activity_type == 'edited' %}
+                  activity-icon-blue
+                {% elif activity.activity_type == 'assigned' or activity.activity_type == 'unassigned' %}
+                  activity-icon-orange
+                {% elif activity.activity_type == 'checked_in' or activity.activity_type == 'checked_out' %}
+                  activity-icon-green
+                {% else %}
+                  activity-icon-gray
+                {% endif %}
+              ">
+                {% if activity.activity_type == 'created' or activity.activity_type == 'edited' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+                {% elif activity.activity_type == 'assigned' or activity.activity_type == 'unassigned' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
+                {% elif activity.activity_type == 'checked_in' or activity.activity_type == 'checked_out' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                {% else %}
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></div>
+                {% endif %}
+              </div>
+              
+              <!-- Content -->
+              <div style="padding-top: 0.25rem;">
+                <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">{{ activity.get_activity_type_display }}</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.25rem 0;">{{ activity.description }}</p>
+                <p style="font-size: 0.6875rem; color: var(--text-muted); margin: 0;">{{ activity.timestamp|date:"d M Y, H:i" }}</p>
+              </div>
             </div>
-            {% if log.check_out_time %}<span class="text-slate-400">{{ log.duration }}</span>
-            {% else %}<span class="badge-green">Active</span>{% endif %}
+            {% endfor %}
           </div>
-          {% endfor %}
+          {% else %}
+          <p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; text-align: center; padding: 0.75rem 0; margin: 0;">No activities logged yet.</p>
+          {% endif %}
         </div>
-        {% else %}
-        <p class="text-xs text-slate-500 italic text-center py-3">No history yet.</p>
-        {% endif %}
       </div>
 
     </div>
   </div>
 </div>
+
+<style>
+  @media (max-width: 1024px) {
+    .grid[style*="grid-template-columns: 2fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+<script>
+  function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(function() {
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Copied!';
+      setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    });
+  }
+</script>
 {% endblock %}

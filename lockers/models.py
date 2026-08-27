@@ -227,3 +227,27 @@ class AccessLog(models.Model):
                 return f"{hours}h {mins}m"
             return f"{mins}m"
         return "In Progress"
+
+
+class LockerActivity(models.Model):
+    ACTIVITY_CHOICES = [
+        ('created', 'Locker Created'),
+        ('edited', 'Locker Updated'),
+        ('assigned', 'Customer Assigned'),
+        ('unassigned', 'Customer Removed'),
+        ('checked_in', 'Checked In'),
+        ('checked_out', 'Checked Out'),
+        ('deleted', 'Locker Deleted'),
+    ]
+
+    locker = models.ForeignKey(Locker, on_delete=models.CASCADE, related_name='activities')
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='locker_activities')
+    activity_type = models.CharField(max_length=50, choices=ACTIVITY_CHOICES)
+    description = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.locker.locker_number} - {self.get_activity_type_display()} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"

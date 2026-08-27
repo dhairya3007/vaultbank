@@ -2,129 +2,145 @@
 {% block title %}{{ customer.name }}{% endblock %}
 {% block page_title %}{{ customer.name }}{% endblock %}
 {% block content %}
-<div class="space-y-5">
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
   <!-- Header -->
-  <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div class="flex items-center gap-4">
-      <div class="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-xl flex items-center justify-center shadow-lg">{{ customer.name|first|upper }}</div>
+  <div class="card" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--accent-blue); color: white; font-weight: bold; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md);">{{ customer.name|first|upper }}</div>
       <div>
-        <h2 class="text-xl font-bold text-white">{{ customer.name }}</h2>
-        <div class="flex items-center gap-2 mt-1 flex-wrap">
-          <span class="badge-blue">{{ customer.get_id_proof_type_display }}</span>
-          <span class="text-xs text-slate-500">&bull; {{ lockers|length }} locker{{ lockers|length|pluralize }} allocated</span>
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0;">{{ customer.name }}</h2>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap;">
+          <span class="badge badge-blue">{{ customer.get_id_proof_type_display }}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">&bull; {{ lockers|length }} locker{{ lockers|length|pluralize }} allocated</span>
         </div>
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <a href="{% url 'customer_edit' customer.pk %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-slate-300 text-sm font-semibold border border-[#334155] transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <a href="{% url 'customer_edit' customer.pk %}" class="btn btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
         Edit
       </a>
-      <a href="{% url 'customer_delete' customer.pk %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-sm font-semibold border border-red-500/20 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+      <a href="{% url 'customer_delete' customer.pk %}" class="btn btn-secondary" style="color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
         Delete
       </a>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+  <div class="grid grid-cols-1" style="grid-template-columns: 2fr 1fr;">
     <!-- Left: ID Proof + Logs -->
-    <div class="lg:col-span-2 space-y-5">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
       <!-- Identity verification & Contact -->
-      <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 space-y-4">
-        <h3 class="text-sm font-semibold text-white border-b border-[#334155] pb-3">Identity &amp; Contact Profile</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="bg-[#0F172A] p-3.5 rounded-lg border border-[#334155]">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Phone Number (SMS Alert)</p>
-            <p class="text-sm font-bold text-white font-mono mt-1 flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" /></svg>
-              {{ customer.phone_number|default:"Not configured" }}
-            </p>
-          </div>
-          <div class="bg-[#0F172A] p-3.5 rounded-lg border border-[#334155]">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email (Security Alerts)</p>
-            <p class="text-sm font-bold text-blue-400 font-mono mt-1 flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
-              {{ customer.email|default:"Not configured" }}
-            </p>
-          </div>
-          <div class="bg-[#0F172A] p-3.5 rounded-lg border border-[#334155]">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ID Proof Type</p>
-            <p class="text-sm font-bold text-white mt-1">{{ customer.get_id_proof_type_display }}</p>
-          </div>
-          <div class="bg-[#0F172A] p-3.5 rounded-lg border border-[#334155]">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Document File</p>
-            {% if customer.id_proof_file and customer.id_proof_file_exists %}
-            <a href="{{ customer.id_proof_file.url }}" target="_blank" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 mt-1 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
-              View / Download
-            </a>
-            {% elif customer.id_proof_file %}
-            <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-red-400 mt-1" title="File not found on server">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-              File Missing
-            </span>
-            {% else %}
-            <p class="text-xs text-slate-500 italic mt-1">No document uploaded</p>
-            {% endif %}
+      <div class="card" style="padding: 0;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Identity &amp; Contact Profile</h3>
+        </div>
+        <div style="padding: 1.5rem;">
+          <div class="grid grid-cols-2 gap-3" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div style="background: var(--bg-app); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Phone Number (SMS Alert)</p>
+              <p style="font-size: 0.875rem; font-weight: 700; color: var(--text-main); font-family: monospace; margin: 0.5rem 0 0; display: flex; align-items: center; gap: 0.375rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" /></svg>
+                {{ customer.phone_number|default:"Not configured" }}
+              </p>
+            </div>
+            <div style="background: var(--bg-app); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Email (Security Alerts)</p>
+              <p style="font-size: 0.875rem; font-weight: 700; color: var(--accent-blue); font-family: monospace; margin: 0.5rem 0 0; display: flex; align-items: center; gap: 0.375rem; word-break: break-all;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="color: var(--text-muted); flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                {{ customer.email|default:"Not configured" }}
+              </p>
+            </div>
+            <div style="background: var(--bg-app); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">ID Proof Type</p>
+              <p style="font-size: 0.875rem; font-weight: 700; color: var(--text-main); margin: 0.5rem 0 0;">{{ customer.get_id_proof_type_display }}</p>
+            </div>
+            <div style="background: var(--bg-app); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Document File</p>
+              {% if customer.id_proof_file and customer.id_proof_file_exists %}
+              <a href="{{ customer.id_proof_file.url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; font-weight: 600; color: var(--accent-blue); text-decoration: none; margin-top: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                View / Download
+              </a>
+              {% elif customer.id_proof_file %}
+              <span style="display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; font-weight: 600; color: var(--accent-red); margin-top: 0.5rem;" title="File not found on server">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                File Missing
+              </span>
+              {% else %}
+              <p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; margin: 0.5rem 0 0;">No document uploaded</p>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Access log -->
-      <div class="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div class="px-5 py-4 border-b border-[#334155]">
-          <h3 class="text-sm font-semibold text-white">Access Log History</h3>
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Access Log History</h3>
         </div>
         {% if logs %}
-        <div class="overflow-x-auto">
-          <table class="w-full vb-table">
+        <div style="overflow-x: auto;">
+          <table class="table">
             <thead><tr><th>Locker</th><th>Check-In</th><th>Check-Out</th><th>Duration</th><th>Status</th></tr></thead>
             <tbody>
               {% for log in logs %}
               <tr>
-                <td><a href="{% url 'locker_detail' log.locker.pk %}" class="font-mono font-semibold text-blue-400 hover:text-blue-300 transition-colors">#{{ log.locker.locker_number }}</a></td>
-                <td class="text-xs text-slate-400">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
-                <td class="text-xs text-slate-400">{{ log.check_out_time|date:"d M Y, H:i"|default:"—" }}</td>
-                <td class="text-xs text-slate-300">{{ log.duration }}</td>
-                <td>{% if log.check_out_time %}<span class="badge-slate">Closed</span>{% else %}<span class="badge-green">Active</span>{% endif %}</td>
+                <td><a href="{% url 'locker_detail' log.locker.pk %}" style="font-family: monospace; font-weight: 600; color: var(--accent-blue); text-decoration: none;">#{{ log.locker.locker_number }}</a></td>
+                <td style="font-size: 0.75rem; color: var(--text-muted);">{{ log.check_in_time|date:"d M Y, H:i" }}</td>
+                <td style="font-size: 0.75rem; color: var(--text-muted);">{{ log.check_out_time|date:"d M Y, H:i"|default:"—" }}</td>
+                <td style="font-size: 0.75rem; color: var(--text-main);">{{ log.duration }}</td>
+                <td>{% if log.check_out_time %}<span class="badge" style="background: var(--bg-app); color: var(--text-muted);">Closed</span>{% else %}<span class="badge badge-green">Active</span>{% endif %}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
         {% else %}
-        <div class="px-5 py-10 text-center text-slate-500 text-sm">No access logs for this customer.</div>
+        <div style="padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.875rem;">No access logs for this customer.</div>
         {% endif %}
       </div>
     </div>
 
     <!-- Right: Allocated lockers -->
     <div>
-      <div class="bg-[#1E293B] border border-[#334155] rounded-xl p-5 space-y-4">
-        <h3 class="text-sm font-semibold text-white border-b border-[#334155] pb-3">Allocated Lockers</h3>
-        {% if lockers %}
-        <div class="space-y-2">
-          {% for locker in lockers %}
-          <a href="{% url 'locker_detail' locker.pk %}" class="flex items-center justify-between p-3 rounded-lg bg-[#0F172A] border border-[#334155] hover:border-blue-500/40 transition-colors group">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-white group-hover:text-blue-400 transition-colors">Locker #{{ locker.locker_number }}</p>
-                <p class="text-xs text-slate-500 font-mono">{{ locker.token|truncatechars:12 }}</p>
-              </div>
-            </div>
-            {% if locker.is_active %}<span class="badge-green">Active</span>{% else %}<span class="badge-red">Inactive</span>{% endif %}
-          </a>
-          {% endfor %}
+      <div class="card" style="padding: 0;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Allocated Lockers</h3>
         </div>
-        {% else %}
-        <p class="text-xs text-slate-500 italic text-center py-4">No lockers allocated.</p>
-        {% endif %}
+        <div style="padding: 1.5rem;">
+          {% if lockers %}
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            {% for locker in lockers %}
+            <a href="{% url 'locker_detail' locker.pk %}" style="display: flex; items-center; justify-content: space-between; padding: 0.75rem; border-radius: var(--radius-md); background: var(--bg-app); border: 1px solid var(--border-color); text-decoration: none; transition: border-color 0.2s;" onmouseover="this.style.borderColor='rgba(59, 130, 246, 0.4)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 2rem; height: 2rem; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="color: var(--accent-blue);" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                </div>
+                <div>
+                  <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Locker #{{ locker.locker_number }}</p>
+                  <p style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace; margin: 0.125rem 0 0;">{{ locker.token|truncatechars:12 }}</p>
+                </div>
+              </div>
+              {% if locker.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-red">Inactive</span>{% endif %}
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; text-align: center; padding: 1rem 0; margin: 0;">No lockers allocated.</p>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  @media (max-width: 1024px) {
+    .grid[style*="grid-template-columns: 2fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
 {% endblock %}
