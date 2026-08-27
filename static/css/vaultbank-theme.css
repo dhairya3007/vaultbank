@@ -200,7 +200,7 @@ button {
 .topbar {
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-color);
-  padding: 1rem 2rem;
+  padding: calc(1rem + env(safe-area-inset-top, 0px)) 2rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -400,8 +400,8 @@ tr:last-child td {
 
 @media (max-width: 640px) {
   .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-  .content-wrapper { padding: 1rem; }
-  .topbar { padding: 0.75rem 1rem; }
+  .content-wrapper { padding: calc(1rem + env(safe-area-inset-top, 0px)) calc(1rem + env(safe-area-inset-right, 0px)) calc(1rem + env(safe-area-inset-bottom, 0px)) calc(1rem + env(safe-area-inset-left, 0px)); }
+  .topbar { padding: calc(0.75rem + env(safe-area-inset-top, 0px)) 1rem 0.75rem; }
 }
 
 /* Utilities */

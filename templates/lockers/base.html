@@ -115,12 +115,13 @@
     
     <!-- Topbar -->
     <header class="topbar">
-      <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
         <button @click="sidebarOpen = true" style="display: none;" class="mobile-menu-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
+        <img src="{% static 'img/logo.svg' %}" alt="VaultBank Logo" class="mobile-logo" style="width: 28px; height: 28px; flex-shrink: 0; display: none;" />
         <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
       </div>
       
@@ -183,6 +184,7 @@
 <style>
   @media (max-width: 1024px) {
     .mobile-menu-btn { display: block !important; color: var(--text-main); }
+    .mobile-logo { display: block !important; }
   }
 </style>
 
