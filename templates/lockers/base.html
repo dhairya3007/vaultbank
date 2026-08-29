@@ -26,15 +26,25 @@
     .border-error { border-left: 4px solid var(--accent-red) !important; }
     .border-warning { border-left: 4px solid var(--accent-primary) !important; }
     .border-success { border-left: 4px solid var(--accent-green) !important; }
+
+    /* Strict scroll lock for mobile sidebar */
+    body.sidebar-open-lock,
+    html.sidebar-open-lock {
+      overflow: hidden !important;
+      touch-action: none !important;
+      overscroll-behavior: none !important;
+    }
   </style>
 </head>
 
-<body x-data="{ sidebarOpen: false }" :style="sidebarOpen ? 'overflow: hidden;' : ''">
+<body x-data="{ sidebarOpen: false }" 
+      x-effect="sidebarOpen ? document.documentElement.classList.add('sidebar-open-lock') : document.documentElement.classList.remove('sidebar-open-lock')"
+      :class="{ 'sidebar-open-lock': sidebarOpen }">
 
 <div class="app-container">
   
   <!-- Sidebar Backdrop (Mobile) -->
-  <div class="sidebar-backdrop" x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" 
+  <div class="sidebar-backdrop" x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" @touchmove.prevent
        style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 35;"></div>
 
   <!-- Sidebar -->
