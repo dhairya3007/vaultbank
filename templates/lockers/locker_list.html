@@ -17,7 +17,7 @@
          const matchText = !q || name.toLowerCase().includes(q) || token.toLowerCase().includes(q);
          
          let matchStatus = true;
-         if (this.statusFilter === 'active') matchStatus = (status === 'active');
+         if (this.statusFilter === 'active') matchStatus = (status === 'active' && leaseStatus !== 'overdue' && leaseStatus !== 'expiring_soon');
          if (this.statusFilter === 'inactive') matchStatus = (status === 'inactive');
          if (this.statusFilter === 'vacant') matchStatus = (isVacant === 'true');
          if (this.statusFilter === 'expiring_soon') matchStatus = (leaseStatus === 'expiring_soon');
@@ -63,33 +63,15 @@
         </button>
       </div>
 
-      <!-- Quick Status & Lease Filter Pills -->
-      <div style="display: flex; flex-wrap: wrap; background: var(--bg-app); padding: 0.375rem; border-radius: var(--radius-md); gap: 0.375rem; align-items: center; border: 1px solid var(--border-color);">
-        <button type="button" @click="statusFilter = 'all'"
-          :style="statusFilter === 'all' ? 'background: var(--bg-surface); color: var(--text-main); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
-          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
-          All
-        </button>
-        <button type="button" @click="statusFilter = 'active'"
-          :style="statusFilter === 'active' ? 'background: var(--bg-surface); color: var(--accent-primary); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
-          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
-          Active
-        </button>
-        <button type="button" @click="statusFilter = 'expiring_soon'"
-          :style="statusFilter === 'expiring_soon' ? 'background: var(--bg-surface); color: var(--accent-primary); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
-          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
-          Expiring Soon
-        </button>
-        <button type="button" @click="statusFilter = 'overdue'"
-          :style="statusFilter === 'overdue' ? 'background: var(--bg-surface); color: var(--accent-red); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
-          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
-          Overdue
-        </button>
-        <button type="button" @click="statusFilter = 'vacant'"
-          :style="statusFilter === 'vacant' ? 'background: var(--bg-surface); color: var(--accent-blue); box-shadow: var(--shadow-sm);' : 'color: var(--text-muted);'"
-          style="padding: 0.375rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
-          Available Slot
-        </button>
+      <!-- Status Filter Dropdown -->
+      <div style="min-width: 160px;">
+        <select x-model="statusFilter" class="form-input" style="height: 100%; cursor: pointer; padding-right: 2rem;">
+          <option value="all">Filter: All Lockers</option>
+          <option value="active">Active</option>
+          <option value="expiring_soon">Expiring Soon</option>
+          <option value="overdue">Overdue</option>
+          <option value="vacant">Available Slot</option>
+        </select>
       </div>
 
     </div>

@@ -24,9 +24,10 @@ class LockerForm(forms.ModelForm):
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
-        fields = ['name', 'phone_number', 'email', 'id_proof_type', 'id_proof_file']
+        fields = ['name', 'customer_id', 'phone_number', 'email', 'id_proof_type', 'id_proof_file']
         widgets = {
             'name': forms.TextInput(attrs={'class': _INPUT, 'placeholder': 'Full Name'}),
+            'customer_id': forms.TextInput(attrs={'class': _INPUT, 'readonly': 'readonly'}),
             'phone_number': forms.TextInput(attrs={'class': _INPUT, 'placeholder': '+1 (555) 000-0000'}),
             'email': forms.EmailInput(attrs={'class': _INPUT, 'placeholder': 'customer@example.com'}),
             'id_proof_type': forms.Select(attrs={'class': _SELECT}),

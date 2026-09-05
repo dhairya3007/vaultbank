@@ -33,6 +33,9 @@
       overflow: hidden !important;
       touch-action: none !important;
       overscroll-behavior: none !important;
+      height: 100vh !important;
+      position: fixed !important;
+      width: 100% !important;
     }
   </style>
 </head>
@@ -91,6 +94,13 @@
         Audit Logs
       </a>
       
+      <a href="{% url 'report_dashboard' %}" class="nav-item {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+        </svg>
+        Reports
+      </a>
+      
       <a href="{% url 'api_explorer' %}" class="nav-item {% if request.resolver_match.url_name == 'api_explorer' %}active{% endif %}">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
@@ -125,23 +135,23 @@
     
     <!-- Topbar -->
     <header class="topbar">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <button @click="sidebarOpen = true" style="display: none;" class="mobile-menu-btn">
+      <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0;">
+        <button @click="sidebarOpen = true" style="display: none; flex-shrink: 0;" class="mobile-menu-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
-        <img src="{% static 'img/logo.svg' %}" alt="VaultBank Logo" class="mobile-logo" style="width: 28px; height: 28px; flex-shrink: 0; display: none;" />
-        <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
+        <img src="{% static 'img/logo.svg' %}" alt="VaultBank Logo" class="mobile-logo" style="width: 24px; height: 24px; flex-shrink: 0; display: none;" />
+        <h1 class="topbar-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{% block page_title %}Dashboard{% endblock %}</h1>
       </div>
       
-      <div style="display: flex; align-items: center; gap: 1rem;">
-        <a href="{% url 'scan_token' %}" class="btn btn-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+        <a href="{% url 'scan_token' %}" class="btn btn-primary topbar-scan-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
           </svg>
-          Scan Access
+          <span class="scan-btn-text">Scan Access</span>
         </a>
       </div>
     </header>
@@ -196,8 +206,15 @@
     .mobile-menu-btn { display: block !important; color: var(--text-main); }
     .mobile-logo { display: block !important; }
   }
+  @media (max-width: 640px) {
+    .topbar-title { font-size: 1.125rem !important; }
+    .scan-btn-text { display: none; }
+    .topbar-scan-btn { padding: 0.5rem !important; border-radius: 50% !important; width: 36px; height: 36px; justify-content: center; }
+    .topbar-scan-btn svg { margin: 0; }
+  }
 </style>
 
 {% block extra_js %}{% endblock %}
+<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

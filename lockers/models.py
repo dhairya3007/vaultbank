@@ -131,6 +131,11 @@ class Locker(models.Model):
         ordering = ['locker_number']
 
 
+def generate_customer_id():
+    """Generate a unique customer ID."""
+    return f"CUST-{secrets.token_hex(4).upper()}"
+
+
 class Customer(models.Model):
     ID_PROOF_CHOICES = [
         ('aadhaar', 'Aadhaar Card'),
@@ -141,6 +146,7 @@ class Customer(models.Model):
     ]
 
     name = models.CharField(max_length=200)
+    customer_id = models.CharField(max_length=50, unique=True, default=generate_customer_id, help_text="Unique Customer ID")
     phone_number = models.CharField(max_length=20, blank=True, null=True, help_text="Phone number for SMS/WhatsApp alerts")
     email = models.EmailField(blank=True, null=True, help_text="Email address for access notifications")
     id_proof_type = models.CharField(max_length=50, choices=ID_PROOF_CHOICES)

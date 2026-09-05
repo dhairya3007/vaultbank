@@ -38,19 +38,25 @@
   </div>
 
   <!-- Active session warning -->
-  {% if active_log %}
-  <div style="background: var(--bg-surface); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
-    <div style="display: flex; align-items: center; gap: 0.75rem;">
-      <span class="badge badge-amber">Occupied</span>
-      <div>
-        <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">{{ active_log.customer.name }} is currently inside</p>
-        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.125rem 0 0;">Check-in: {{ active_log.check_in_time|date:"d M, H:i" }}</p>
+  {% if active_logs %}
+  <div style="background: var(--bg-surface); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span class="badge badge-amber">Occupied</span>
+        <div>
+          <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Currently inside: 
+            {% for log in active_logs %}{{ log.customer.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          </p>
+        </div>
       </div>
+      <form method="POST" action="{% url 'check_out_all' locker.pk %}" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" style="background: var(--accent-primary); border-color: var(--accent-primary); padding: 0.5rem 1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="margin-right: 0.375rem; display: inline-block; vertical-align: text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
+          Check-Out All ({{ active_logs|length }})
+        </button>
+      </form>
     </div>
-    <form method="POST" action="{% url 'check_out' active_log.pk %}" style="margin: 0;">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-primary" style="background: var(--accent-primary); border-color: var(--accent-primary);">Process Check-Out</button>
-    </form>
   </div>
   {% endif %}
 
@@ -68,55 +74,114 @@
       </label>
     </div>
 
-    <div class="grid grid-cols-3 gap-4" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+    <style>
+      .customer-card {
+        height: 100%; 
+        border: 1px solid var(--border-color); 
+        border-radius: var(--radius-lg); 
+        padding: 1.25rem; 
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; 
+        align-items: flex-start; 
+        gap: 1rem; 
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      }
+      .customer-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      }
+      .customer-card.is-checked {
+        border-color: var(--accent-blue); 
+        background: #EFF6FF;
+        box-shadow: 0 0 0 1px var(--accent-blue);
+      }
+      
+      .customer-checkbox {
+        width: 1.25rem; 
+        height: 1.25rem; 
+        border-radius: 0.25rem; 
+        border: 2px solid #cbd5e1; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        flex-shrink: 0; 
+        margin-top: 0.25rem; 
+        transition: all 0.2s;
+        background: #fff;
+      }
+      .customer-checkbox.is-checked {
+        border-color: var(--accent-blue); 
+        background: var(--accent-blue);
+      }
+      
+      .customer-avatar {
+        width: 2.75rem; 
+        height: 2.75rem; 
+        border-radius: 50%; 
+        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); 
+        color: white; 
+        font-weight: 700; 
+        font-size: 1rem; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        flex-shrink: 0;
+        box-shadow: 0 2px 5px rgba(59,130,246,0.3);
+      }
+    </style>
+    
+    <div class="grid grid-cols-3 gap-4" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
       {% for customer in customers %}
-      <label style="position: relative; cursor: pointer; display: block;" for="cust_{{ customer.pk }}">
+      <label style="position: relative; cursor: pointer; display: block; height: 100%;" for="cust_{{ customer.pk }}">
         <input type="checkbox" name="customer_ids" value="{{ customer.pk }}" id="cust_{{ customer.pk }}"
           class="cc-checkbox" style="position: absolute; opacity: 0; width: 0; height: 0;"
           {% if customer.is_active_now %}disabled{% endif %} />
 
         <!-- Card content -->
-        <!-- Needs custom CSS to style based on checked state; doing basic inline styling, but usually this needs an Alpine watcher or CSS sibling selector. Using an Alpine binding for the class. -->
         <div x-data="{ checked: false }" 
              x-init="$watch('allSelected', val => { if(!{{ customer.is_active_now|yesno:'true,false' }}) checked = val; })"
              @click="if(!{{ customer.is_active_now|yesno:'true,false' }}) checked = !checked"
-             :style="checked ? 'border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.05);' : 'border-color: var(--border-color); background: var(--bg-app);'"
-             style="height: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; transition: all 0.2s; display: flex; align-items: flex-start; gap: 0.75rem; box-shadow: var(--shadow-sm);">
+             class="customer-card {% if customer.is_active_now %}opacity-40{% endif %}"
+             :class="checked ? 'is-checked' : ''">
           
           <!-- Checkbox indicator -->
-          <div :style="checked ? 'border-color: var(--accent-blue); background: var(--accent-blue);' : 'border-color: var(--border-color); background: transparent;'"
-               class="{% if customer.is_active_now %}opacity-40{% endif %}"
-               style="width: 1.25rem; height: 1.25rem; border-radius: 0.25rem; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.125rem; transition: all 0.2s;">
-            <svg x-show="checked" xmlns="http://www.w3.org/2000/svg" width="12" height="12" style="color: white;" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          <div class="customer-checkbox" :class="checked ? 'is-checked' : ''">
+            <svg x-show="checked" xmlns="http://www.w3.org/2000/svg" width="12" height="12" style="color: white;" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
           </div>
 
           <!-- Avatar -->
-          <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--accent-blue); color: white; font-weight: bold; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ customer.name|first|upper }}</div>
+          <div class="customer-avatar">{{ customer.name|first|upper }}</div>
 
           <!-- Info -->
           <div style="flex: 1; min-width: 0;">
-            <p style="font-weight: 600; color: var(--text-main); font-size: 0.875rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ customer.name }}</p>
-            <span class="badge badge-blue" style="margin-top: 0.25rem; display: inline-block;">{{ customer.get_id_proof_type_display }}</span>
-            {% if customer.is_active_now %}
-            <p style="margin: 0.25rem 0 0;"><span class="badge badge-green">Currently Inside</span></p>
-            {% endif %}
-            {% if customer.id_proof_file and customer.id_proof_file_exists %}
-            {% if customer.proof_is_image %}
-            <a href="{{ customer.id_proof_file.url }}" target="_blank" style="margin-top: 0.5rem; display: block; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-color); max-width: 140px; height: 4rem; text-decoration: none;">
-              <img src="{{ customer.id_proof_file.url }}" alt="ID" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" />
-            </a>
-            {% else %}
-            <a href="{{ customer.id_proof_file.url }}" target="_blank" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--accent-blue); text-decoration: none; transition: color 0.2s;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
-              View (.{{ customer.proof_ext }})
-            </a>
-            {% endif %}
-            {% elif customer.id_proof_file %}
-            <span style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--accent-red);" title="File missing on server">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-              File Missing
-            </span>
-            {% endif %}
+            <p style="font-weight: 700; color: var(--text-main); font-size: 1rem; margin: 0 0 0.25rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ customer.name }}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center;">
+              <span class="badge badge-blue" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">{{ customer.get_id_proof_type_display }}</span>
+              {% if customer.is_active_now %}
+                <span class="badge badge-green" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">Currently Inside</span>
+              {% endif %}
+            </div>
+
+            <div style="margin-top: 0.75rem;">
+              {% if customer.id_proof_file and customer.id_proof_file_exists %}
+                {% if customer.proof_is_image %}
+                  <a href="{{ customer.id_proof_file.url }}" target="_blank" style="display: block; border-radius: 0.375rem; overflow: hidden; border: 1px solid var(--border-color); width: 100px; height: 3.5rem; text-decoration: none;">
+                    <img src="{{ customer.id_proof_file.url }}" alt="ID" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" />
+                  </a>
+                {% else %}
+                  <a href="{{ customer.id_proof_file.url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; font-weight: 600; color: var(--accent-blue); text-decoration: none; padding: 0.375rem 0.75rem; background: rgba(59,130,246,0.1); border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.15)'" onmouseout="this.style.background='rgba(59,130,246,0.1)'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                    View (.{{ customer.proof_ext }})
+                  </a>
+                {% endif %}
+              {% elif customer.id_proof_file %}
+                <span style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: #DC2626; padding: 0.25rem 0.5rem; background: #FEF2F2; border-radius: var(--radius-sm);" title="File missing on server">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  File Missing
+                </span>
+              {% endif %}
+            </div>
           </div>
         </div>
       </label>

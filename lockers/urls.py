@@ -26,9 +26,14 @@ urlpatterns = [
     path('scan/checkin/<int:pk>/', views.scan_checkin, name='scan_checkin'),
     path('checkin/', views.check_in, name='check_in'),
     path('checkout/<int:log_id>/', views.check_out, name='check_out'),
+    path('checkout-all/<int:locker_id>/', views.check_out_all, name='check_out_all'),
 
     # Access Logs
     path('logs/', views.access_log, name='access_log'),
+
+    # Reports
+    path('reports/', views.report_dashboard_view, name='report_dashboard'),
+    path('reports/generate/', views.report_generate_view, name='report_generate'),
 
     # API Explorer
     path('api-explorer/', views.api_explorer, name='api_explorer'),

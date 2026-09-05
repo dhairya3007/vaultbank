@@ -96,7 +96,7 @@ source bank/bin/activate
 ```
 
 ### 3. Install Dependencies
-
+pip install -r requirements.txt
 ```bash
 bank\Scripts\pip install django pillow
 ```

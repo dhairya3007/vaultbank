@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    VaultBank SaaS – main.js
    Alpine.js Stores, Global Utilities, QR Scanner & Clipboard Helpers
    Tech Stack: Tailwind CSS + Flowbite + Alpine.js + Heroicons
@@ -77,8 +77,8 @@ function startQrScanner(readerContainerId, hiddenInputId, submitFormId) {
   const stopBtn  = document.getElementById('stopScanBtn');
   const hintEl   = document.getElementById('cameraHint');
 
-  if (startBtn) startBtn.classList.add('hidden');
-  if (stopBtn)  stopBtn.classList.remove('hidden');
+  if (startBtn) startBtn.style.display = 'none';
+  if (stopBtn)  stopBtn.style.display = 'inline-flex';
   if (hintEl)   hintEl.textContent = 'Initialising camera feed…';
 
   try {
@@ -98,13 +98,13 @@ function startQrScanner(readerContainerId, hiddenInputId, submitFormId) {
       if (hintEl) hintEl.textContent = 'Camera active. Center the locker QR code inside the box.';
     }).catch(err => {
       if (hintEl) hintEl.textContent = 'Camera permission required or device unavailable (' + err + ')';
-      if (startBtn) startBtn.classList.remove('hidden');
-      if (stopBtn)  stopBtn.classList.add('hidden');
+      if (startBtn) startBtn.style.display = 'inline-flex';
+      if (stopBtn)  stopBtn.style.display = 'none';
     });
   } catch (e) {
     if (hintEl) hintEl.textContent = 'Scanner library loading error. Please use manual entry.';
-    if (startBtn) startBtn.classList.remove('hidden');
-    if (stopBtn)  stopBtn.classList.add('hidden');
+    if (startBtn) startBtn.style.display = 'inline-flex';
+    if (stopBtn)  stopBtn.style.display = 'none';
   }
 }
 
@@ -116,8 +116,8 @@ function stopQrScanner() {
       const startBtn = document.getElementById('startScanBtn');
       const stopBtn  = document.getElementById('stopScanBtn');
       const hintEl   = document.getElementById('cameraHint');
-      if (startBtn) startBtn.classList.remove('hidden');
-      if (stopBtn)  stopBtn.classList.add('hidden');
+      if (startBtn) startBtn.style.display = 'inline-flex';
+      if (stopBtn)  stopBtn.style.display = 'none';
       if (hintEl)   hintEl.textContent = 'Point camera at locker QR code';
     }).catch(console.error);
   }

@@ -10,6 +10,7 @@
       <div>
         <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0;">{{ customer.name }}</h2>
         <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap;">
+          <span class="badge badge-amber" style="font-family: monospace;">{{ customer.customer_id }}</span>
           <span class="badge badge-blue">{{ customer.get_id_proof_type_display }}</span>
           <span style="font-size: 0.75rem; color: var(--text-muted);">&bull; {{ lockers|length }} locker{{ lockers|length|pluralize }} allocated</span>
         </div>
@@ -29,14 +30,14 @@
 
   <div class="grid grid-cols-1" style="grid-template-columns: 2fr 1fr;">
     <!-- Left: ID Proof + Logs -->
-    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
       <!-- Identity verification & Contact -->
       <div class="card" style="padding: 0;">
         <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
           <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin: 0;">Identity &amp; Contact Profile</h3>
         </div>
         <div style="padding: 1.5rem;">
-          <div class="grid grid-cols-2 gap-3" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="grid grid-cols-2 gap-3">
             <div style="background: var(--bg-app); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
               <p style="font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Phone Number (SMS Alert)</p>
               <p style="font-size: 0.875rem; font-weight: 700; color: var(--text-main); font-family: monospace; margin: 0.5rem 0 0; display: flex; align-items: center; gap: 0.375rem;">

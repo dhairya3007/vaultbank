@@ -178,7 +178,7 @@ def locker_list(request):
 def locker_detail(request, pk):
     locker = get_object_or_404(Locker, pk=pk)
     customers = locker.get_customers()
-    active_log = AccessLog.objects.filter(locker=locker, check_out_time__isnull=True).first()
+    active_logs = AccessLog.objects.filter(locker=locker, check_out_time__isnull=True).select_related('customer')
     logs = AccessLog.objects.filter(locker=locker).select_related('customer')[:20]
     activities = locker.activities.all().select_related('customer')[:50]
     add_form = LockerUserForm(locker=locker)
@@ -186,7 +186,7 @@ def locker_detail(request, pk):
     context = {
         'locker': locker,
         'customers': customers,
-        'active_log': active_log,
+        'active_logs': active_logs,
         'logs': logs,
         'activities': activities,
         'add_form': add_form,
@@ -387,10 +387,10 @@ def scan_checkin(request, pk):
     locker = get_object_or_404(Locker, pk=pk, is_active=True)
     customers = locker.get_customers()
 
-    # Fetch active session for this locker (if any)
-    active_log = AccessLog.objects.filter(
+    # Fetch all active sessions for this locker
+    active_logs = AccessLog.objects.filter(
         locker=locker, check_out_time__isnull=True
-    ).select_related('customer').first()
+    ).select_related('customer')
 
     if request.method == 'POST':
         selected_ids = request.POST.getlist('customer_ids')   # multi-select
@@ -443,7 +443,7 @@ def scan_checkin(request, pk):
     context = {
         'locker': locker,
         'customers': customers,
-        'active_log': active_log,
+        'active_logs': active_logs,
         'active_customer_ids': active_customer_ids,
     }
     return render(request, 'lockers/scan_checkin.html', context)
@@ -497,6 +497,36 @@ def check_out(request, log_id):
     return redirect('locker_detail', pk=log.locker.pk)
 
 
+@login_required
+def check_out_all(request, locker_id):
+    locker = get_object_or_404(Locker, pk=locker_id)
+    if request.method == 'POST':
+        active_logs = AccessLog.objects.filter(locker=locker, check_out_time__isnull=True).select_related('customer')
+        if not active_logs.exists():
+            messages.warning(request, "No active sessions found for this locker.")
+        else:
+            names = []
+            now = timezone.now()
+            for log in active_logs:
+                log.check_out_time = now
+                log.save()
+                names.append(log.customer.name)
+                LockerActivity.objects.create(
+                    locker=locker, 
+                    customer=log.customer, 
+                    activity_type='checked_out', 
+                    description=f'Checked out (Duration: {log.duration()}).'
+                )
+            names_str = ", ".join(names)
+            messages.success(request, f"✅ Bulk Check-Out complete for: {names_str} from Locker #{locker.locker_number}.")
+    
+    # Redirect back to where the request came from
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect('locker_detail', pk=locker.pk)
+
+
 # ─── Access Log View ──────────────────────────────────────────────────────────
 
 @login_required
@@ -515,6 +545,77 @@ def access_log(request):
         logs = logs.filter(check_out_time__isnull=False)
 
     return render(request, 'lockers/access_log.html', {'logs': logs, 'query': query, 'status': status})
+
+# ─── Reports ──────────────────────────────────────────────────────────────────
+
+import datetime
+
+@login_required
+def report_dashboard_view(request):
+    lockers = Locker.objects.all().order_by('locker_number')
+    return render(request, 'lockers/report_dashboard.html', {'lockers': lockers})
+
+@login_required
+def report_generate_view(request):
+    period = request.GET.get('period', 'weekly')
+    locker_id = request.GET.get('locker_id', 'all')
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
+
+    logs = AccessLog.objects.select_related('customer', 'locker').prefetch_related('locker__locker_users__customer').order_by('-check_in_time')
+    
+    if locker_id != 'all':
+        logs = logs.filter(locker_id=locker_id)
+
+    today = timezone.now()
+    
+    if period == 'weekly':
+        start_date = today - datetime.timedelta(days=7)
+        logs = logs.filter(check_in_time__gte=start_date)
+        period_display = "Last 7 Days"
+    elif period == 'monthly':
+        start_date = today - datetime.timedelta(days=30)
+        logs = logs.filter(check_in_time__gte=start_date)
+        period_display = "Last 30 Days"
+    elif period == '6_months':
+        start_date = today - datetime.timedelta(days=180)
+        logs = logs.filter(check_in_time__gte=start_date)
+        period_display = "Last 6 Months"
+    elif period == 'yearly':
+        start_date = today - datetime.timedelta(days=365)
+        logs = logs.filter(check_in_time__gte=start_date)
+        period_display = "Last Year"
+    elif period == 'custom':
+        if start_date_str:
+            try:
+                sd = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                logs = logs.filter(check_in_time__gte=timezone.make_aware(datetime.datetime.combine(sd, datetime.time.min)))
+            except ValueError:
+                pass
+        if end_date_str:
+            try:
+                ed = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                logs = logs.filter(check_in_time__lte=timezone.make_aware(datetime.datetime.combine(ed, datetime.time.max)))
+            except ValueError:
+                pass
+        period_display = f"Custom: {start_date_str} to {end_date_str}"
+    else:
+        period_display = "All Time"
+        
+    context = {
+        'logs': logs,
+        'period_display': period_display,
+        'generated_at': timezone.now(),
+    }
+    
+    if locker_id != 'all':
+        locker = Locker.objects.filter(pk=locker_id).first()
+        context['locker_display'] = f"Locker #{locker.locker_number}" if locker else "Unknown Locker"
+    else:
+        context['locker_display'] = "All Lockers"
+        
+    return render(request, 'lockers/report_print.html', context)
+
 
 # ─── API Explorer (staff-only, SSRF-hardened) ─────────────────────────────────
 
